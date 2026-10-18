@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "projectState": "local-flight-prototype",
+  "publicReleaseApproved": false,
+  "assets": [
+    {
+      "id": "motorcycle-blockout",
+      "kind": "procedural-generator",
+      "path": "src/motorcycle.ts",
+      "creator": "project-local procedural implementation",
+      "source": "independently authored here; no imported geometry or textures",
+      "rightsBasis": "Local fan-concept prototype; public release requires separate review",
+      "releaseStatus": "review-required",
+      "sha256": "20616b89fbb6be6f878ad3a6e80b78dcbb372e5e467aee4d9918fbdfa257cdc0"
+    },
+    {
+      "id": "test-meadow",
+      "kind": "procedural-generator",
+      "path": "src/view.ts",
+      "creator": "project-local procedural implementation",
+      "source": "independently authored here; no imported geometry or textures",
+      "rightsBasis": "Local fan-concept prototype; public release requires separate review",
+      "releaseStatus": "review-required",
+      "sha256": "0ef0f1b944a41325fa34bc69fa29358528cce8c5dc5d22ee96d608a657157423"
+    }
+  ]
+}
