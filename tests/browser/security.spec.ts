@@ -13,7 +13,7 @@ test('security headers permit normal flight and block an injected inline script'
   const headers=response!.headers();
   for(const [name,value] of Object.entries(expected))expect(headers[name.toLowerCase()],name).toBe(value);
   await expect(page.locator('body')).toHaveAttribute('data-mode','ready');
-  await page.getByRole('button',{name:'Take flight'}).click();
+  await page.getByRole('button',{name:'Ride scooter'}).click();
   await page.keyboard.down('Space');await page.waitForTimeout(600);await page.keyboard.up('Space');
   await expect.poll(async()=>Number(await page.locator('#altitude').getAttribute('data-value'))).toBeGreaterThan(1);
   await page.keyboard.press('p');

@@ -1,8 +1,12 @@
 # The Infinite Orb
 
-**Local playable v0 — an enclosed flying motorcycle, no character.**
+**King Kai-inspired 10g prototype — drive a gas-assisted enclosed scooter with whole-planet and first-person cockpit views. No character.**
 
 Working title. Unofficial Dragon Ball-inspired fan concept, not a licensed release. The current geometry is an independently authored, disposable procedural blockout; it is not Fwaz's finished Blender model.
+
+## Play
+
+https://the-infinite-orb.vercel.app — desktop keyboard and WebGL required. Press **V** for cockpit view, or use the **View** button.
 
 ## Run locally
 
@@ -16,18 +20,21 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 
 ## What works now
 
-- Enclosed motorcycle silhouette with glass canopy, empty seat/dashboard and two visible wheels.
-- Flat test meadow, distant decorative scenery and a launch pad.
-- Fixed-step forward/reverse motion, steering, ascent/descent, hover and a chase camera.
-- Ground/altitude/world-boundary containment; pause on blur/tab hide; reset.
+- Enclosed scooter silhouette with glass canopy, empty seat/dashboard, two wheels and cartoon shading.
+- A literal small spherical planet, a wraparound road, pastel trees, lakes, flowers and puffy clouds.
+- Fixed-step forward/reverse driving and steering on the curved surface, including the underside and poles.
+- An orthographic camera that follows the scooter while keeping the entire globe visible.
+- Inverse-square gravity, unlimited thruster fuel, bounded thrust and gravity-driven falls. Constant-mass, unlimited resupply is an explicit arcade concession. See [physics assumptions](docs/PHYSICS.md).
+- Optional synthesized gas hiss and small procedural exhaust puffs. No imported audio.
+- First-person cockpit view: press V or use the View button; the default whole-planet view remains available.
 - Mouse-drag camera orbit, reduced-motion setting and low-resolution graphics option.
 - Readable small-screen/unsupported-WebGL fallbacks. No touch gameplay.
 
-Controls: **W/S** accelerate/brake/reverse; **A/D** steer; **Space/Shift** rise/descend; **P/Escape** pause; **R** return to launch. Click Resume to continue. Release thrust to slow into a hover. Every point on the flat field is landable in v0; tagged pads and obstacle gameplay belong to later milestones.
+Click **Ride scooter**. **W/S** accelerate/brake/reverse; **A/D** steer; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
 
 ## Not built yet
 
-Blender master/GLB, exact final vehicle design, full Supreme Kai environment, checkpoint route, obstacle collision course, sound, touch controls and portfolio integration. Decorations sit outside the flight boundary. No finished-game, mobile-support, cross-browser or 60-FPS guarantee is claimed.
+Blender master/GLB, exact final vehicle design, finished King Kai-inspired landmarks, checkpoint gameplay, scenery collisions, calibrated audio, touch controls and portfolio integration. Trees, clouds and lakes are decorative; driving through scenery is not yet blocked. No finished-game, mobile-support, cross-browser or 60-FPS guarantee is claimed.
 
 ## Verify
 

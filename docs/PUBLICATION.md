@@ -14,11 +14,15 @@ Public release is a separate decision: obtain appropriate permission or select a
 
 ## Initial source publication
 
-Fwaz authorized publishing the reviewed prototype source to the public FwazB/the-infinite-orb repository. This approval covers the source snapshot, not a hosted-game release, private reference images or final art approval. No source license has been selected; this publication introduces no new license or claim of third-party rights clearance. The asset register retains its review-required status for the separate game/asset release decision.
+Fwaz authorized publishing the reviewed prototype source to the public FwazB/the-infinite-orb repository. This approval covers the source snapshot, not a hosted-game release, private reference images or final art approval. No source license has been selected; this publication introduces no new license or claim of third-party rights clearance. That original approval did not cover hosting; the later authorization below does.
+
+## Prototype-hosting authorization
+
+The user authorized this prototype on their personal Vercel workspace, including the cockpit-view update. `publicReleaseApproved` with `approvalScope: prototype-hosting` records that narrow permission. It does not imply final vehicle approval, franchise rights clearance, a source license, a new Git push or portfolio changes. The procedural generators are prototype-approved; private references never ship.
 
 ## Asset register
 
-assets/manifest.json records the local procedural prototype sources and their review-required status. Each future item must identify id, relative runtime path, creator, source reference, rights basis, permission/license evidence, release status and SHA-256. Unknown or review-required status blocks public release. Register original meshes too: original authorship of a file is distinct from rights in an underlying recognizable design.
+assets/manifest.json records the procedural prototype sources and their current prototype-approved status. Each future item must identify id, relative runtime path, creator, source reference, rights basis, permission/license evidence, release status and SHA-256. Unknown or review-required status blocks public release. Register original meshes too: original authorship of a file is distinct from rights in an underlying recognizable design.
 
 Never ship extracted commercial game models, anime screenshots as textures, copied soundtracks, or random downloaded fan models with missing provenance. Keep nonshipping reference images separate from public/assets. Dependency licenses and texture/audio/model licenses are separate checks. Do not declare a source-code license as a license for third-party IP; choose repository licensing before publication.
 

@@ -1,5 +1,9 @@
 # Roadmap and decision gates
 
+## Current direction update — King Kai at 10g
+
+Fwaz requested the whole planet in view, scooter driving around it and more cartoon-like graphics. The local revision implements a literal spherical surface, seam-free driving, a whole-globe camera and a procedural cartoon scene. This supersedes M1's flat ground and close chase view below. The gravity revision adds unlimited-fuel lift, procedural audio and a first-person cockpit toggle. Prototype hosting is explicitly authorized. Final vehicle modeling, canonical landmarks, collisions, route gameplay and performance benchmarks remain unfinished. See [current status](STATUS.md) and [playable decisions](PLAYABLE_DESIGN.md).
+
 ## M0 — Plan (this repository)
 
 Deliverables: product scope, vehicle/world briefs, Blender workflow, architecture, acceptance matrix, provenance register and release boundary. Validate documentation links and manifest. No game, art or benchmark is claimed.

@@ -19,7 +19,7 @@ This is a static, local-first browser prototype: no account system, backend, ana
 - `vercel.json` supplies the same production headers and limits the hosting output directory to `dist` for a future Vercel deployment.
 - `public/_headers` is copied into `dist` for static hosts that explicitly support that convention. Other servers may ignore it.
 - Tests ensure both files match the shared production policy. Update all three together.
-- The portfolio currently links to the game; embedding is intentionally denied. Revisit both CSP `frame-ancestors` and X-Frame-Options before an explicitly approved embedding change.
+- Portfolio linking remains a separate, unperformed action; embedding is intentionally denied. Revisit both CSP `frame-ancestors` and X-Frame-Options before an explicitly approved embedding change.
 - No hosting provider, domain, HTTPS service or live header behavior is established merely by committing these files. Verify the actual origin and built asset responses after an authorized deployment. Never deploy the Vite development server.
 
 ## Reproduce verification

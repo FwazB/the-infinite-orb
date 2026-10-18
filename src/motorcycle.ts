@@ -1,15 +1,15 @@
 import * as T from 'three';
 
 /** Disposable primitive silhouette, not the final Blender vehicle. Nose points -Z. */
-export function createMotorcycle(){
+export function createMotorcycle(gradient:T.Texture|null=null){
   const root=new T.Group();
-  const cream=new T.MeshToonMaterial({color:'#f6f0dc'});
-  const trim=new T.MeshToonMaterial({color:'#756f83'});
-  const tire=new T.MeshToonMaterial({color:'#342f40'});
-  const orange=new T.MeshToonMaterial({color:'#c87649'});
-  const rim=new T.MeshStandardMaterial({color:'#ddd9cc',roughness:0.65});
-  const dark=new T.MeshToonMaterial({color:'#39434a'});
-  const glass=new T.MeshStandardMaterial({color:'#8cbcb5',roughness:0.18,metalness:0.18,transparent:true,opacity:0.64,depthWrite:false,side:T.DoubleSide});
+  const cream=new T.MeshToonMaterial({color:'#fff1cc',gradientMap:gradient});
+  const trim=new T.MeshToonMaterial({color:'#66587c',gradientMap:gradient});
+  const tire=new T.MeshToonMaterial({color:'#38304d',gradientMap:gradient});
+  const orange=new T.MeshToonMaterial({color:'#ed8061',gradientMap:gradient});
+  const rim=new T.MeshToonMaterial({color:'#fff1d4',gradientMap:gradient});
+  const dark=new T.MeshToonMaterial({color:'#404c65',gradientMap:gradient});
+  const glass=new T.MeshToonMaterial({color:'#7fd4e1',gradientMap:gradient,transparent:true,opacity:0.68,depthWrite:false,side:T.DoubleSide});
   const outline=new T.MeshBasicMaterial({color:'#3e3849',side:T.BackSide});
   function part(geometry:T.BufferGeometry,material:T.Material,position:number[],scale:number[]=[1,1,1],edged=false){
     const m=new T.Mesh(geometry,material);m.position.set(position[0],position[1],position[2]);m.scale.set(scale[0],scale[1],scale[2]);root.add(m);
@@ -48,6 +48,9 @@ export function createMotorcycle(){
     const fork=part(new T.CylinderGeometry(0.052,0.052,0.7,8),rim,[side*0.25,0.06,-0.97]);fork.rotation.x=-0.28;
     part(new T.BoxGeometry(0.15,0.07,0.48),trim,[side*0.66,-0.17,0.25]);
     exhaust.name='exhaust';
+    part(new T.CylinderGeometry(0.12,0.2,0.2,12),rim,[side*0.62,-0.3,0.35]);
+    const liftPort=part(new T.CircleGeometry(0.145,12),dark,[side*0.62,-0.405,0.35]);
+    liftPort.rotation.x=Math.PI/2;liftPort.name='lift-nozzle';
   }
-  return {root,wheels};
+  return {root,wheels,glass,canopyArch:arch};
 }

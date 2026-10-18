@@ -1,13 +1,15 @@
-# First playable design decisions
+# Tiny-planet playable decisions
 
-The user chose the motorcycle reference, enclosed cockpit and no character, then authorized building. This first local playable follows that approved direction; it does not finalize Fwaz's Blender design.
+The selected setting is King Kai's small planet at 10g, following the user's official-lore choice. Earlier Supreme Kai / Grand Kai interpretations are superseded. The entire globe remains visible in the default Planet view. The enclosed scooter has no character; final vehicle design remains subject to Fwaz's approval.
 
-- Artifact: desktop browser flight blockout, greenfield. A low-density playable scene rather than a marketing website.
-- Design read: playful retro-mechanical silhouette in a quiet celestial landscape. Visual variance 6/10, motion 3/10, density 2/10, asset dependence 5/10, franchise fidelity 3/10 for this provisional blockout.
-- Narrative role: open invitation to fly, then unobtrusive instrument readouts. Laptop viewing distance; large readable controls.
-- Palette: lavender sky #c4b6d9, jade grass #95c889, cream shell #f6f0dc, dark plum ink #352c43, restrained orange #b85432 control accent.
-- Typography: locally available Georgia for editorial headings, a local sans-serif stack for controls, monospace for instruments. No external font fetch.
-- Spacing: multiples of 8px; round pill controls but no dashboard-card grid. Hairline separators and restrained shadows.
-- Motion: bounded arcade flight and damped chase camera, no camera shake; reduced-motion disables bank/bobbing and uses tighter camera follow.
-- Provisional assets: independently authored primitive motorcycle, flat test meadow and distant decorative silhouettes. No imported franchise imagery, logos, music, rider or source code.
-- Scope: controllable local v0 for user feedback, not M2 Blender/export work, M4 route gameplay or a public release. An actual rendered screenshot is the review checkpoint before final model/world work.
+## Movement
+
+Ground motion uses spherical contact with wheel-force acceleration, rolling resistance and seam-free steering over poles and the underside. Space activates unlimited-supply lift; release or Shift cuts thrust. Fuel does not drain and vehicle mass stays constant. This is an explicit arcade concession, not realistic fuel conservation. Airborne translation follows inverse-square gravity and applied force. R resets; P/Escape pauses. See [physics equations and assumptions](PHYSICS.md).
+
+## Two camera views
+
+V or the View button toggles Planet and Cockpit views without resetting the vehicle. The first-person perspective camera sits inside the canopy, follows planetary up and supports bounded drag-look. It retains the empty dashboard, with lighter interior glass and a hidden central canopy arch to preserve visibility. These interior cutaway choices do not change the exterior vehicle design. Pause and reset retain the selected mode. Planet view uses altitude-aware orthographic framing. Reduced motion remains available.
+
+## Rendering and limits
+
+Toon materials, pastel landscape, gas puffs and optional synthesized hiss are procedural. No imported geometry, textures, fonts or sound recordings were added. Trees and lakes remain decorative, not colliders. No full canonical-landmark reconstruction, final Blender vehicle, touch gameplay, physical-device performance guarantee or engineering-grade propulsion model is claimed.

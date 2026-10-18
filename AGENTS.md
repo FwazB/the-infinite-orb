@@ -6,6 +6,8 @@ Read README.md, docs/ROADMAP.md and the relevant design document before changes.
 
 Fwaz owns the vehicle design. Treat proportions, silhouette, color and detailed styling as approval gates. Do not silently replace the fan-game brief with an original-IP game, or replace the chosen enclosed motorcycle with the earlier car direction. Detailed Blender design remains subject to Fwaz's approval.
 
+The current world direction is a literal small cartoon planet with the whole globe visible and the enclosed scooter driving around its curved surface. This supersedes the initial flat-meadow/chase-camera blockout. Preserve seamless travel over the poles and underside; scenery is currently decorative, not collision-complete. The selected lore is King Kai at 10g. The user requested unlimited thruster fuel; keep thrust finite and label unlimited supply as an arcade concession. An optional first-person cockpit camera is also required; retain the default whole-globe view and toggle without changing simulation state.
+
 ## Separation
 
 Never copy, import, vendor, adapt or derive implementation from unrelated private or proprietary repositories. This includes snippets, shaders, tests, fixtures, internal packages, assets, configuration and infrastructure. No source-tree links or private dependencies. Use independent implementation and explicitly licensed public dependencies only. Do not inspect other private projects to obtain implementation material.

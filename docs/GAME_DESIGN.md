@@ -1,5 +1,9 @@
 # Game design
 
+## Current local slice
+
+The current user-directed slice is whole-planet scooter driving with a cartoon presentation. The sphere is fully traversable, the camera keeps the whole globe visible, and hover is optional. The older route, collision and tagged-landing proposals below are not implemented. See [playable decisions](PLAYABLE_DESIGN.md) for the active behavior.
+
 ## North star
 
 A short, inviting flying experience that makes the player want to look around. The fantasy is visiting the calm, otherworldly landscape associated with Supreme Kai while piloting Fwaz's interpretation of the selected enclosed motorcycle, without a rider character. It is not the dense city from the SpikeRiser reference; that clip informs illustrated rendering and movement appeal, not the setting or asset design.

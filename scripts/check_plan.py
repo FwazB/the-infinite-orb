@@ -35,8 +35,17 @@ for path in markdown:
 
 try:
     manifest = json.loads((ROOT / 'assets/manifest.json').read_text())
-    if not isinstance(manifest, dict) or manifest.get('schemaVersion') != 1 or manifest.get('projectState') != 'local-flight-prototype' or manifest.get('publicReleaseApproved') is not False:
-        raise ValueError('manifest must describe an unapproved local-flight-prototype')
+    if not isinstance(manifest, dict) or manifest.get('schemaVersion') != 1:
+        raise ValueError('manifest schema is invalid')
+    approved = manifest.get('publicReleaseApproved')
+    if approved is True:
+        if manifest.get('projectState') != 'public-prototype' or manifest.get('approvalScope') != 'prototype-hosting':
+            raise ValueError('public prototype requires explicit prototype-hosting approval scope')
+        expected_status = 'prototype-approved'
+    elif approved is False and manifest.get('projectState') == 'local-flight-prototype':
+        expected_status = 'review-required'
+    else:
+        raise ValueError('manifest approval and project state disagree')
     assets = manifest.get('assets')
     if not isinstance(assets, list) or not assets:
         raise ValueError('manifest needs procedural source records')
@@ -48,7 +57,7 @@ try:
             raise ValueError('manifest has duplicate asset identifiers')
         ids.add(item['id'])
         path = (ROOT / item['path']).resolve()
-        if ROOT not in path.parents or not path.is_file() or item['kind'] != 'procedural-generator' or item['releaseStatus'] != 'review-required':
+        if ROOT not in path.parents or not path.is_file() or path.suffix != '.ts' or path.relative_to(ROOT).parts[0] != 'src' or item['kind'] != 'procedural-generator' or item['releaseStatus'] != expected_status:
             raise ValueError('manifest asset path or review state is invalid')
         if hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
             errors.append('Asset source hash mismatch: ' + item['path'])
@@ -58,5 +67,5 @@ except (OSError, ValueError) as exc:
 if errors:
     print('\n'.join(errors))
     sys.exit(1)
-print(f'PASS: {len(markdown)} documents, {link_count} local file links, unapproved procedural-asset manifest.')
+print(f'PASS: {len(markdown)} documents, {link_count} local file links, {expected_status} procedural-asset manifest.')
 print('This command validates documentation/provenance only; use npm test and npm run test:browser for behavior. No rights clearance implied.')

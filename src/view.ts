@@ -1,97 +1,123 @@
 import * as T from 'three';
+import {GasExhaust} from './exhaust';
+import {MAX_THRUST} from './physics';
 import {createMotorcycle} from './motorcycle';
-import {FLOOR,type FlightState} from './flight';
+import {createPlanet,planetCameraBounds} from './planet-world';
+import {FLOOR,PLANET_RADIUS,type FlightState} from './flight';
 
 export class FlightView {
   readonly renderer:T.WebGLRenderer;
   private scene=new T.Scene();
-  private camera=new T.PerspectiveCamera(42,1,0.1,1400);
-  private bike=createMotorcycle();
+  private camera=new T.OrthographicCamera(-48,48,27,-27,0.1,400);
+  private cockpitCamera=new T.PerspectiveCamera(80,1,0.025,400);
+  private firstPerson=false;
+  private lookTarget=new T.Vector3();
+  private gradient=new T.DataTexture(new Uint8Array([90,165,225,255]),4,1,T.RedFormat);
+  private bike:ReturnType<typeof createMotorcycle>;
   private shadow:T.Mesh;
-  private look=new T.Vector3(-1.4,1.96,25.5);
+  private up=new T.Vector3(0,1,0);
+  private forward=new T.Vector3(0,0,-1);
+  private right=new T.Vector3(1,0,0);
+  private back=new T.Vector3(0,0,1);
+  private position=new T.Vector3();
+  private basis=new T.Matrix4();
+  private bodyFrame=new T.Quaternion();
+  private cameraFrame=new T.Quaternion();
+  private flatShadow=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2);
+  private center=new T.Vector3();
+  private projectedCenter=new T.Vector3();
+  private projectedBike=new T.Vector3();
+  private exhaust=new GasExhaust();
+  private velocity=new T.Vector3();
   private orbitAngle=0;
   private orbitHeight=0;
   private orbitAge=0;
-  private clock=0;
-  private smoothPosition=new T.Vector3();
-  private target=new T.Vector3();
-  private desired=new T.Vector3();
-  constructor(canvas:HTMLCanvasElement){
+  private introShift=0.11;
+  private needsSnap=true;
+
+  constructor(private canvas:HTMLCanvasElement){
     this.renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
     this.renderer.outputColorSpace=T.SRGBColorSpace;
-    this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.28;
-    this.scene.background=new T.Color('#c4b6d9');
-    this.scene.fog=new T.Fog('#d2c5df',110,460);
-    this.scene.add(new T.HemisphereLight('#fff7e6','#625380',2.4));
-    const sun=new T.DirectionalLight('#ffe8c4',3.2);sun.position.set(-45,90,30);this.scene.add(sun);
-    this.scene.add(this.bike.root);
-    this.camera.position.set(8,3.76,35);
-    const groundMat=new T.MeshToonMaterial({color:'#95c889'});
-    const edgeMat=new T.MeshToonMaterial({color:'#9eab84'});
-    const ground=new T.Mesh(new T.CylinderGeometry(240,217,12,96,1),[edgeMat,groundMat,edgeMat]);ground.position.y=-6;this.scene.add(ground);
-    // Flat test field: all decorative solid landmarks stay outside the flight boundary.
-    const wash=new T.Mesh(new T.CircleGeometry(239,96),new T.MeshBasicMaterial({color:'#c4db94',transparent:true,opacity:0.12}));wash.rotation.x=-Math.PI/2;wash.position.y=0.005;this.scene.add(wash);
-    const pad=new T.Mesh(new T.CircleGeometry(8,64),new T.MeshToonMaterial({color:'#d9d8af'}));pad.rotation.x=-Math.PI/2;pad.position.set(0,0.012,26);this.scene.add(pad);
-    for(const radius of [6.6,7.2,218]){
-      const ring=new T.Mesh(new T.RingGeometry(radius,radius+0.06,128),new T.MeshBasicMaterial({color:'#f0edd0',side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(0,0.02,radius>100?0:26);this.scene.add(ring);
-    }
-    for(const side of [-1,1]){
-      const dash=new T.Mesh(new T.PlaneGeometry(0.12,3.5),new T.MeshBasicMaterial({color:'#f1eed2'}));dash.rotation.x=-Math.PI/2;dash.position.set(side*2.6,0.025,26);this.scene.add(dash);
-    }
-    const dots=new T.InstancedMesh(new T.ConeGeometry(0.16,0.65,3),new T.MeshToonMaterial({color:'#77ac7c'}),300);
-    const dummy=new T.Object3D();
-    for(let i=0;i<300;i++){
-      const angle=i*2.39996, radius=18+Math.sqrt((i*73)%300/300)*205;
-      dummy.position.set(Math.cos(angle)*radius,0.23,Math.sin(angle)*radius);dummy.rotation.set(0,angle,0);dummy.scale.setScalar(0.6+(i%4)*0.25);dummy.updateMatrix();dots.setMatrixAt(i,dummy.matrix);
-    }this.scene.add(dots);
-    this.addTree(65,-250,1.6);this.addTree(-155,-220,0.8);this.addTree(205,162,1.0);
-    const moon=new T.Mesh(new T.SphereGeometry(36,48,32),new T.MeshBasicMaterial({color:'#ece0cc',fog:false}));moon.position.set(-110,48,-330);this.scene.add(moon);
-    const halo=new T.Mesh(new T.RingGeometry(47,49,100),new T.MeshBasicMaterial({color:'#e5d3dc',side:T.DoubleSide,fog:false,transparent:true,opacity:0.65}));halo.position.copy(moon.position);halo.rotation.set(0.65,0.1,-0.25);this.scene.add(halo);
-    const cloud=new T.InstancedMesh(new T.SphereGeometry(1,16,10),new T.MeshBasicMaterial({color:'#eee5e7',transparent:true,opacity:0.62,depthWrite:false}),24);
-    for(let i=0;i<24;i++){
-      const a=i*2.399;dummy.position.set(Math.sin(a)*430,65+(i%5)*13,Math.cos(a)*430);dummy.rotation.set(0,0,0);dummy.scale.set(25+(i%3)*7,3+(i%2)*2,9);dummy.updateMatrix();cloud.setMatrixAt(i,dummy.matrix);
-    }this.scene.add(cloud);
-    this.shadow=new T.Mesh(new T.CircleGeometry(1,32),new T.MeshBasicMaterial({color:'#45465a',transparent:true,opacity:0.2,depthWrite:false}));this.shadow.rotation.x=-Math.PI/2;this.scene.add(this.shadow);
+    this.renderer.toneMapping=T.NoToneMapping;
+    this.gradient.minFilter=T.NearestFilter;this.gradient.magFilter=T.NearestFilter;
+    this.gradient.generateMipmaps=false;this.gradient.needsUpdate=true;
+    this.scene.background=new T.Color('#bcb0e2');
+    this.scene.add(new T.HemisphereLight('#fff6e4','#947bbb',1.25));
+    const sun=new T.DirectionalLight('#fff6df',1.15);sun.position.set(-25,60,40);this.scene.add(sun);
+    this.scene.add(createPlanet(this.gradient));
+    this.bike=createMotorcycle(this.gradient);this.scene.add(this.bike.root);
+    this.shadow=new T.Mesh(new T.CircleGeometry(1,40),new T.MeshBasicMaterial({color:'#433458',transparent:true,opacity:0.2,depthWrite:false}));this.scene.add(this.shadow);
+    this.scene.add(this.exhaust.mesh);
+    canvas.dataset.world='tiny-planet';
     this.resize();
   }
-  private addTree(x:number,z:number,scale:number){
-    const group=new T.Group();group.position.set(x,0,z);group.scale.setScalar(scale);
-    const trunk=new T.Mesh(new T.CylinderGeometry(1.2,3.0,23,7),new T.MeshToonMaterial({color:'#8c7275'}));trunk.position.y=11;trunk.rotation.z=-0.1;group.add(trunk);
-    const foliage=new T.InstancedMesh(new T.DodecahedronGeometry(1,1),new T.MeshToonMaterial({color:'#638d7f'}),9);const dummy=new T.Object3D();
-    for(let i=0;i<9;i++){const a=i*2.4;dummy.position.set(Math.cos(a)*(i?8:0),23+(i%3)*3,Math.sin(a)*(i?7:0));dummy.scale.set(8,4.2,7);dummy.rotation.set(i,0,a);dummy.updateMatrix();foliage.setMatrixAt(i,dummy.matrix);}
-    group.add(foliage);this.scene.add(group);
+  resize(){
+    Object.assign(this.camera,planetCameraBounds(innerWidth,innerHeight));
+    this.camera.updateProjectionMatrix();
+    this.cockpitCamera.aspect=innerWidth/Math.max(1,innerHeight);this.cockpitCamera.updateProjectionMatrix();
+    this.renderer.setSize(innerWidth,innerHeight);
   }
-  resize(){this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight);}
+  toggleCamera(){this.firstPerson=!this.firstPerson;this.orbitAngle=0;this.orbitHeight=0;this.needsSnap=true;return this.firstPerson;}
   quality(low:boolean){this.renderer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.5));this.resize();}
-  orbit(dx:number,dy:number){this.orbitAngle+=dx*0.006;this.orbitHeight=T.MathUtils.clamp(this.orbitHeight+dy*0.015,-1,6);this.orbitAge=0;}
-  resetCamera(){this.orbitAngle=0;this.orbitHeight=0;this.camera.position.set(8,3.76,35);this.look.set(0,1.1,26);}
+  orbit(dx:number,dy:number){this.orbitAngle+=dx*0.006;this.orbitHeight=T.MathUtils.clamp(this.orbitHeight+dy*0.003,-0.18,0.4);this.orbitAge=0;}
+  resetCamera(){this.exhaust.clear();this.orbitAngle=0;this.orbitHeight=0;this.needsSnap=true;for(const wheel of this.bike.wheels)wheel.rotation.x=0;}
   render(s:FlightState,previous:FlightState,alpha:number,dt:number,preview:boolean,reduced:boolean,animate:boolean){
-    if(animate)this.clock+=dt;
-    this.smoothPosition.set(T.MathUtils.lerp(previous.x,s.x,alpha),T.MathUtils.lerp(previous.y,s.y,alpha),T.MathUtils.lerp(previous.z,s.z,alpha));
-    this.bike.root.position.copy(this.smoothPosition);
-    if(!s.grounded&&!reduced&&animate)this.bike.root.position.y+=Math.sin(this.clock*2)*0.035;
-    this.bike.root.rotation.set(0,s.yaw,reduced?0:s.bank,'YXZ');
-    for(const wheel of this.bike.wheels)wheel.rotation.x=-s.distance/0.68;
-    this.shadow.position.set(s.x,0.035,s.z);this.shadow.scale.set(1.0+(s.y-FLOOR)*0.03,1.9+(s.y-FLOOR)*0.03,1);
-    (this.shadow.material as T.MeshBasicMaterial).opacity=0.2/(1+(s.y-FLOOR)*0.17);
+    const altitude=T.MathUtils.lerp(previous.altitude,s.altitude,alpha);
+    this.position.set(T.MathUtils.lerp(previous.x,s.x,alpha),T.MathUtils.lerp(previous.y,s.y,alpha),T.MathUtils.lerp(previous.z,s.z,alpha));
+    this.up.copy(this.position).normalize();
+    this.position.copy(this.up).multiplyScalar(PLANET_RADIUS+FLOOR+altitude);
+    this.forward.set(T.MathUtils.lerp(previous.fx,s.fx,alpha),T.MathUtils.lerp(previous.fy,s.fy,alpha),T.MathUtils.lerp(previous.fz,s.fz,alpha));
+    this.forward.addScaledVector(this.up,-this.forward.dot(this.up)).normalize();
+    this.right.crossVectors(this.forward,this.up).normalize();this.back.copy(this.forward).negate();
+    this.basis.makeBasis(this.right,this.up,this.back);this.bodyFrame.setFromRotationMatrix(this.basis);
+    this.bike.glass.opacity=this.firstPerson?0.12:0.68;
+    this.bike.canopyArch.visible=!this.firstPerson;
+    this.bike.root.position.copy(this.position);this.bike.root.quaternion.copy(this.bodyFrame);
+    if(!reduced)this.bike.root.rotateZ(s.bank);
+    if(animate)for(const wheel of this.bike.wheels)wheel.rotation.x-=s.speed*dt/0.68;
+    this.shadow.position.copy(this.up).multiplyScalar(PLANET_RADIUS+0.11);
+    this.shadow.quaternion.copy(this.bodyFrame).multiply(this.flatShadow);
+    this.shadow.scale.set(1+altitude*0.06,1.7+altitude*0.06,1);
+    (this.shadow.material as T.MeshBasicMaterial).opacity=0.22/(1+altitude*0.35);
+    this.velocity.set(s.velocityX,s.velocityY,s.velocityZ);
+    this.exhaust.update(this.position,this.up,this.right,this.back,this.velocity,animate?s.thrust/MAX_THRUST:0,animate?dt:0,reduced);
+    this.canvas.dataset.plumes=String(this.exhaust.mesh.count);
+    const extent=PLANET_RADIUS+FLOOR+altitude+5,cameraDistance=Math.max(75,2*extent);
+    this.camera.far=Math.max(400,4*extent);this.cockpitCamera.far=this.camera.far;
+    Object.assign(this.camera,planetCameraBounds(innerWidth,innerHeight,altitude));this.camera.updateProjectionMatrix();this.cockpitCamera.updateProjectionMatrix();
     this.orbitAge+=dt;
     if(this.orbitAge>2){this.orbitAngle*=Math.exp(-dt*2);this.orbitHeight*=Math.exp(-dt*2);}
-    if(preview){
-      this.desired.set(s.x+8,s.y+2.9,s.z+9);
-      this.target.set(s.x-1.4,s.y+1.1,s.z-0.5);
-    }else{
-      const yaw=s.yaw+this.orbitAngle,range=8.5+Math.abs(s.speed)*0.035;
-      this.desired.set(s.x+Math.sin(yaw)*range,s.y+2.5+this.orbitHeight,s.z+Math.cos(yaw)*range);
-      this.target.set(s.x-Math.sin(s.yaw)*2,s.y+0.9,s.z-Math.cos(s.yaw)*2);
+    const blend=1-Math.exp(-dt*(reduced?16:6));
+    if(this.needsSnap){this.cameraFrame.copy(this.bodyFrame);this.needsSnap=false;}
+    else this.cameraFrame.slerp(this.bodyFrame,blend);
+    this.camera.position.set(Math.sin(0.38+this.orbitAngle)*0.75,0.68+this.orbitHeight,Math.cos(0.38+this.orbitAngle)*0.75).normalize().multiplyScalar(cameraDistance).applyQuaternion(this.cameraFrame);
+    this.camera.up.set(0,1,0).applyQuaternion(this.cameraFrame);this.camera.lookAt(this.center);
+    this.introShift=T.MathUtils.lerp(this.introShift,preview&&innerWidth/innerHeight>1.5?0.11:0,blend);
+    this.camera.setViewOffset(innerWidth,innerHeight,-innerWidth*this.introShift,0,innerWidth,innerHeight);
+    if(this.firstPerson){
+      // Eye is inside the empty canopy; keep the horizon aligned with local planetary up.
+      this.cockpitCamera.position.set(0,1.3,-0.25).applyQuaternion(this.bodyFrame).add(this.position);
+      const yaw=T.MathUtils.clamp(this.orbitAngle,-0.85,0.85),pitch=-0.38-this.orbitHeight;
+      this.lookTarget.set(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)).applyQuaternion(this.bodyFrame).add(this.cockpitCamera.position);
+      this.cockpitCamera.up.copy(this.up);this.cockpitCamera.lookAt(this.lookTarget);
     }
-    this.desired.y=Math.max(1.5,this.desired.y);
-    const blend=1-Math.exp(-dt*(reduced?16:5));this.camera.position.lerp(this.desired,blend);this.look.lerp(this.target,blend);this.camera.lookAt(this.look);
-    this.renderer.render(this.scene,this.camera);
+    const activeCamera=this.firstPerson?this.cockpitCamera:this.camera;
+    this.renderer.render(this.scene,activeCamera);
+    this.canvas.dataset.camera=this.firstPerson?'cockpit':'planet';
+    this.projectedCenter.set(0,0,0).project(this.camera);
+    const rx=PLANET_RADIUS*Math.abs(this.camera.projectionMatrix.elements[0]),ry=PLANET_RADIUS*Math.abs(this.camera.projectionMatrix.elements[5]);
+    this.canvas.dataset.planetInFrame=String(!this.firstPerson&&Math.abs(this.projectedCenter.x)+rx<1&&Math.abs(this.projectedCenter.y)+ry<1);
+    this.projectedBike.copy(this.position).project(this.camera);
+    this.canvas.dataset.scooterInFrame=String(!this.firstPerson&&Math.abs(this.projectedBike.x)+2*Math.abs(this.camera.projectionMatrix.elements[0])<1&&Math.abs(this.projectedBike.y)+2*Math.abs(this.camera.projectionMatrix.elements[5])<1&&Math.abs(this.projectedBike.z)<1);
+    this.canvas.dataset.drawCalls=String(this.renderer.info.render.calls);
   }
   dispose(){
     const geometries=new Set<T.BufferGeometry>();const materials=new Set<T.Material>();
-    this.scene.traverse(o=>{if(o instanceof T.Mesh){geometries.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);}});
-    geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());this.renderer.dispose();
+    this.scene.traverse(object=>{
+      if(object instanceof T.Mesh||object instanceof T.Points){geometries.add(object.geometry);for(const material of Array.isArray(object.material)?object.material:[object.material])materials.add(material);}
+      if(object instanceof T.InstancedMesh)object.dispose();
+    });
+    geometries.forEach(geometry=>geometry.dispose());materials.forEach(material=>material.dispose());this.gradient.dispose();this.renderer.dispose();
   }
 }

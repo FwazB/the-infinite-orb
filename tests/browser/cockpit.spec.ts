@@ -1,0 +1,31 @@
+import {test,expect} from '@playwright/test';
+
+test('cockpit view toggles with V and the button while driving, lifting, pausing and resetting',async({page})=>{
+  test.setTimeout(45000);
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/');await page.getByRole('button',{name:'Ride scooter'}).click();
+  await page.keyboard.press('v');
+  await expect(page.locator('#world')).toHaveAttribute('data-camera','cockpit');
+  await expect(page.getByRole('button',{name:'Switch to planet view'})).toHaveAttribute('aria-pressed','true');
+  await page.keyboard.down('w');await page.waitForTimeout(1800);await page.keyboard.up('w');
+  expect(Number(await page.locator('#distance').getAttribute('data-value'))).toBeGreaterThan(3);
+  await page.screenshot({path:'test-results/cockpit-driving-1080p.png'});
+  await page.keyboard.down('w');
+  await expect.poll(async()=>Number(await page.locator('#distance').getAttribute('data-value')),{timeout:25000}).toBeGreaterThan(2*Math.PI*18.86);
+  await page.keyboard.up('w');
+  await expect(page.locator('#world')).toHaveAttribute('data-camera','cockpit');
+  await page.mouse.move(950,480);await page.mouse.down();await page.mouse.move(1060,510);await page.mouse.up();
+  await page.keyboard.down('Space');await page.waitForTimeout(700);await page.keyboard.up('Space');
+  await expect.poll(async()=>Number(await page.locator('#altitude').getAttribute('data-value'))).toBeGreaterThan(1);
+  await page.screenshot({path:'test-results/cockpit-lift-1080p.png'});
+  await page.keyboard.press('p');await expect(page.locator('body')).toHaveAttribute('data-mode','paused');
+  await page.getByRole('button',{name:'Back to start'}).click();
+  await expect(page.locator('#world')).toHaveAttribute('data-camera','cockpit');
+  await page.getByRole('button',{name:'Resume ride'}).click();
+  await page.getByRole('button',{name:'Switch to planet view'}).click();
+  await expect(page.locator('#world')).toHaveAttribute('data-camera','planet');
+  await expect(page.locator('#world')).toHaveAttribute('data-planet-in-frame','true');
+  await page.keyboard.press('v');
+  await expect(page.locator('#world')).toHaveAttribute('data-camera','cockpit');
+  expect(errors).toEqual([]);
+});

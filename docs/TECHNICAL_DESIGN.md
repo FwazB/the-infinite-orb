@@ -1,5 +1,9 @@
 # Technical design
 
+## Current tiny-planet implementation
+
+The local revision uses a literal sphere rather than the original flat field. `src/flight.ts` maintains radial position, a transported forward tangent and radial hover height; `src/planet-world.ts` generates the toon globe and decorative scenery. `src/view.ts` frames the entire planet with an orthographic camera oriented by the scooter’s local surface frame. The proposed terrain-heightfield, obstacle collision and close-chase ideas below are future/historical alternatives, not current behavior. See [playable decisions](PLAYABLE_DESIGN.md).
+
 ## Proposed stack and architecture
 
 Static browser app using TypeScript, Vite and Three.js. The initial compatible dependencies are now pinned in package.json/package-lock.json; inspect those files for the installed versions. The broader architecture below includes future work beyond the local v0. Use GLTFLoader for runtime models. No backend, accounts, model API, database or unrelated proprietary service dependency.

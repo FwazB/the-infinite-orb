@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "projectState": "local-flight-prototype",
-  "publicReleaseApproved": false,
+  "projectState": "public-prototype",
+  "publicReleaseApproved": true,
   "assets": [
     {
       "id": "motorcycle-blockout",
@@ -9,19 +9,51 @@
       "path": "src/motorcycle.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported geometry or textures",
-      "rightsBasis": "Local fan-concept prototype; public release requires separate review",
-      "releaseStatus": "review-required",
-      "sha256": "20616b89fbb6be6f878ad3a6e80b78dcbb372e5e467aee4d9918fbdfa257cdc0"
+      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
+      "releaseStatus": "prototype-approved",
+      "sha256": "eb9563f565a97775c39e057e3fa712e2a848cb0eedf5980dd36798d58b9037d9"
     },
     {
-      "id": "test-meadow",
+      "id": "planet-scene",
       "kind": "procedural-generator",
       "path": "src/view.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported geometry or textures",
-      "rightsBasis": "Local fan-concept prototype; public release requires separate review",
-      "releaseStatus": "review-required",
-      "sha256": "0ef0f1b944a41325fa34bc69fa29358528cce8c5dc5d22ee96d608a657157423"
+      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
+      "releaseStatus": "prototype-approved",
+      "sha256": "84158d35a75828a50d7d8bdad1e9b9ca08a7076f357fa5e9779865e942753748"
+    },
+    {
+      "id": "tiny-planet-world",
+      "kind": "procedural-generator",
+      "path": "src/planet-world.ts",
+      "creator": "project-local procedural implementation",
+      "source": "independently authored here; no imported geometry or textures",
+      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
+      "releaseStatus": "prototype-approved",
+      "sha256": "399ea6366a05823a6da04a8ec786102f978514807f6cc9773cabf0a75b1315af"
+    },
+    {
+      "id": "gas-exhaust",
+      "kind": "procedural-generator",
+      "path": "src/exhaust.ts",
+      "creator": "project-local procedural implementation",
+      "source": "independently authored here; no imported audio, geometry or textures",
+      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
+      "releaseStatus": "prototype-approved",
+      "sha256": "441ba87b727fe405b0e69800a99c57dafa0730538a5cc37a2f2ef242f8fc8008"
+    },
+    {
+      "id": "thruster-audio",
+      "kind": "procedural-generator",
+      "path": "src/thruster-audio.ts",
+      "creator": "project-local procedural implementation",
+      "source": "independently authored here; no imported audio, geometry or textures",
+      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
+      "releaseStatus": "prototype-approved",
+      "sha256": "9fbb572bf02ddc5f1f994e701019c6d670915ca61c5b8156eecbd9de0aeeca49"
     }
-  ]
+  ],
+  "approvalScope": "prototype-hosting",
+  "finalVehicleDesignApproved": false
 }

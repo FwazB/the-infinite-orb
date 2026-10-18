@@ -10,13 +10,13 @@ The private mood references combine quiet scenes, blue/green expanses, saturated
 
 ## Composition proposal
 
-A compact spherical-world illusion: gently curved grass, a distant horizon and surrounding sky rather than a literal planet-scale simulation. A traversable terrain patch with distant non-collidable scenery provides scale cheaply. One starting plateau, one giant-tree landmark, one exposed overlook and a connecting valley create a readable loop. No buildings or city blocks unless Fwaz adds them to the brief.
+Fwaz requested a literal little planet, fully visible while the enclosed scooter drives around it, with more cartoon-like graphics. The current prototype uses a whole sphere rather than a terrain patch or curved-horizon illusion. A wide orthographic view follows the scooter's local surface frame so the world rolls underneath it without losing the globe. A continuous road, pastel trees, small lakes, flowers and clouds form the provisional toy-world composition. These are independently authored design choices, not verified canonical scenery. No buildings or city blocks unless Fwaz adds them to the brief.
 
 Establish a distinct silhouette at each destination. Route rings should guide, not clutter the view. Keep landing pads integrated into terrain. Distant planets or moons are backdrop elements, not destinations, pending reference approval.
 
 ## Visual treatment
 
-Proposed stylized cel-like lighting, clean silhouette lines, broad warm/cool color blocks, soft haze and a restrained palette. Avoid making the vehicle disappear into grass or sky. Hand-authored proportions matter more than microtexture. No borrowed Dragon Ball textures or fonts.
+Implemented treatment: stepped toon lighting, a clean planet outline, bright grass, cream/coral scooter details, pastel treetops and a lavender backdrop. No realistic metallic materials, atmospheric fog, texture downloads or postprocessing stack. Keep the scooter distinguishable at the whole-planet scale. Hand-authored proportions matter more than microtexture. No borrowed Dragon Ball textures or fonts.
 
 First prove the look using one tree, terrain patch, vehicle blockout and sky. Compare a real browser frame with the Blender preview: do not approve a material solely from an offline render.
 
