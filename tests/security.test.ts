@@ -7,7 +7,8 @@ export const sensitivePaths=[
   'keys/service.pem','keys/service.PEM','keys/service.key','keys/service.p12','keys/service.pfx',
   '.ssh/id_ed25519','id_rsa','blender/bike.blend','blender/vehicles/bike.blend',
   'blender/vehicles/bike.blend1','blender/vehicles/renders/front.png',
-  'references/private/reference.jpg','private/receipt.json'
+  'references/private/reference.jpg','private/receipt.json',
+  'foo#/.env','foo?/.env'
 ];
 
 test('normal Git publication excludes sensitive configuration and nested source art',()=>{
@@ -26,6 +27,6 @@ test('serving policy blocks sensitive names, source-art trees and encoded varian
       assert.equal(isSensitivePath(variant),true,variant);
     }
   }
-  for(const path of ['/.git/config','/%252eenv','/%ZZ','/blender/anything.glb','/keys/a.pem%3fraw'])assert.equal(isSensitivePath(path),true,path);
+  for(const path of ['/foo%23/.env','/foo%3f/.env','/foo%2523/.env','/.git/config','/%252eenv','/%ZZ','/blender/anything.glb','/keys/a.pem%3fraw'])assert.equal(isSensitivePath(path),true,path);
   for(const path of ['/','/src/main.ts','/public/assets/bike.glb','/assets/app.js','/assets/site.css','/@vite/client'])assert.equal(isSensitivePath(path),false,path);
 });

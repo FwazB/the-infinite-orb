@@ -1,6 +1,8 @@
 import * as T from 'three';
 import {GasExhaust} from './exhaust';
 import {MAX_THRUST} from './physics';
+import {worldById,type WorldDefinition} from './worlds';
+import {disposeWorld} from './world-landmarks';
 import {createMotorcycle} from './motorcycle';
 import {createPlanet,planetCameraBounds} from './planet-world';
 import {FLOOR,PLANET_RADIUS,type FlightState} from './flight';
@@ -8,6 +10,8 @@ import {FLOOR,PLANET_RADIUS,type FlightState} from './flight';
 export class FlightView {
   readonly renderer:T.WebGLRenderer;
   private scene=new T.Scene();
+  private world=worldById('king-kai');
+  private worldGroup:T.Group;
   private camera=new T.OrthographicCamera(-48,48,27,-27,0.1,400);
   private cockpitCamera=new T.PerspectiveCamera(80,1,0.025,400);
   private firstPerson=false;
@@ -45,12 +49,18 @@ export class FlightView {
     this.scene.background=new T.Color('#bcb0e2');
     this.scene.add(new T.HemisphereLight('#fff6e4','#947bbb',1.25));
     const sun=new T.DirectionalLight('#fff6df',1.15);sun.position.set(-25,60,40);this.scene.add(sun);
-    this.scene.add(createPlanet(this.gradient));
+    this.worldGroup=createPlanet(this.gradient,this.world);this.scene.add(this.worldGroup);
+    this.canvas.dataset.destination=this.world.id;
     this.bike=createMotorcycle(this.gradient);this.scene.add(this.bike.root);
     this.shadow=new T.Mesh(new T.CircleGeometry(1,40),new T.MeshBasicMaterial({color:'#433458',transparent:true,opacity:0.2,depthWrite:false}));this.scene.add(this.shadow);
     this.scene.add(this.exhaust.mesh);
     canvas.dataset.world='tiny-planet';
     this.resize();
+  }
+  setWorld(world:WorldDefinition){
+    const next=createPlanet(this.gradient,world);disposeWorld(this.worldGroup);this.worldGroup=next;this.scene.add(next);
+    this.world=world;this.scene.background=new T.Color(world.sky);this.firstPerson=false;this.center.set(0,world.shape==='plateau'?8:0,0);
+    this.canvas.dataset.destination=world.id;this.canvas.dataset.shape=world.shape;this.resetCamera();
   }
   resize(){
     Object.assign(this.camera,planetCameraBounds(innerWidth,innerHeight));
@@ -65,8 +75,8 @@ export class FlightView {
   render(s:FlightState,previous:FlightState,alpha:number,dt:number,preview:boolean,reduced:boolean,animate:boolean){
     const altitude=T.MathUtils.lerp(previous.altitude,s.altitude,alpha);
     this.position.set(T.MathUtils.lerp(previous.x,s.x,alpha),T.MathUtils.lerp(previous.y,s.y,alpha),T.MathUtils.lerp(previous.z,s.z,alpha));
-    this.up.copy(this.position).normalize();
-    this.position.copy(this.up).multiplyScalar(PLANET_RADIUS+FLOOR+altitude);
+    const plateau=this.world.shape==='plateau';
+    if(plateau)this.up.set(0,1,0);else{this.up.copy(this.position).normalize();this.position.copy(this.up).multiplyScalar(PLANET_RADIUS+FLOOR+altitude);}
     this.forward.set(T.MathUtils.lerp(previous.fx,s.fx,alpha),T.MathUtils.lerp(previous.fy,s.fy,alpha),T.MathUtils.lerp(previous.fz,s.fz,alpha));
     this.forward.addScaledVector(this.up,-this.forward.dot(this.up)).normalize();
     this.right.crossVectors(this.forward,this.up).normalize();this.back.copy(this.forward).negate();
@@ -76,16 +86,18 @@ export class FlightView {
     this.bike.root.position.copy(this.position);this.bike.root.quaternion.copy(this.bodyFrame);
     if(!reduced)this.bike.root.rotateZ(s.bank);
     if(animate)for(const wheel of this.bike.wheels)wheel.rotation.x-=s.speed*dt/0.68;
-    this.shadow.position.copy(this.up).multiplyScalar(PLANET_RADIUS+0.11);
+    if(plateau)this.shadow.position.set(s.x,PLANET_RADIUS+0.11,s.z);else this.shadow.position.copy(this.up).multiplyScalar(PLANET_RADIUS+0.11);
+    this.shadow.visible=!plateau||(Math.abs(s.x)<=14&&Math.abs(s.z)<=14&&s.y>=PLANET_RADIUS);
     this.shadow.quaternion.copy(this.bodyFrame).multiply(this.flatShadow);
     this.shadow.scale.set(1+altitude*0.06,1.7+altitude*0.06,1);
     (this.shadow.material as T.MeshBasicMaterial).opacity=0.22/(1+altitude*0.35);
     this.velocity.set(s.velocityX,s.velocityY,s.velocityZ);
     this.exhaust.update(this.position,this.up,this.right,this.back,this.velocity,animate?s.thrust/MAX_THRUST:0,animate?dt:0,reduced);
     this.canvas.dataset.plumes=String(this.exhaust.mesh.count);
-    const extent=PLANET_RADIUS+FLOOR+altitude+5,cameraDistance=Math.max(75,2*extent);
+    const framedAltitude=altitude+(plateau?20:0);
+    const extent=PLANET_RADIUS+FLOOR+framedAltitude+5,cameraDistance=Math.max(75,2*extent);
     this.camera.far=Math.max(400,4*extent);this.cockpitCamera.far=this.camera.far;
-    Object.assign(this.camera,planetCameraBounds(innerWidth,innerHeight,altitude));this.camera.updateProjectionMatrix();this.cockpitCamera.updateProjectionMatrix();
+    Object.assign(this.camera,planetCameraBounds(innerWidth,innerHeight,framedAltitude));this.camera.updateProjectionMatrix();this.cockpitCamera.updateProjectionMatrix();
     this.orbitAge+=dt;
     if(this.orbitAge>2){this.orbitAngle*=Math.exp(-dt*2);this.orbitHeight*=Math.exp(-dt*2);}
     const blend=1-Math.exp(-dt*(reduced?16:6));

@@ -1,4 +1,6 @@
-# King Kai gravity and unlimited-supply thruster
+# Destination gravity and unlimited-supply thruster
+
+The local selector uses per-world gravity. See [worlds and evidence](WORLDS.md). King Kai remains the default 10g world described below. Earth uses 1g; Namek 1.5g and Beerus 100g are explicitly labeled gameplay assumptions. Spherical worlds retain inverse-square gravity. Beerus uses a flat 28 m square platform, constant downward gravity and edge-fall respawn, integrated in microsteps with bounded thrust; its vertical solver is semi-implicit Euler rather than the spherical velocity-Verlet solver.
 
 The selected lore is King Kai / North Kaio's small planet at 10g. The radius and vehicle specifications are prototype assumptions, not canonical dimensions or Tesla specifications.
 
@@ -11,6 +13,10 @@ The selected lore is King Kai / North Kaio's small planet at 10g. The radius and
 - Space requests upward motion through a force controller. Releasing Space or holding Shift cuts thrust; gravity still acts. R resets position, not fuel availability.
 - Ground driving uses bounded 3000 N wheel force, rolling resistance of 0.02 × normal load, spherical contact and an 8 m/s forward / 3 m/s reverse governor. Steering in the air changes assumed attitude, not translational momentum. Landing is inelastic.
 - Overview camera distance and clipping planes expand with altitude to avoid losing the scooter during sustained lift. First-person clipping range also expands. Planet view remains available with V.
+
+## 100g training consequences
+
+The user-selected Whis challenge is an artificial, non-canon gameplay mode. Constant 100g acts downward on the plateau. At 300 kg, weight is 294,199.5 N, exceeding the unchanged 45,000 N thruster. Unlimited supply therefore does not enable takeoff. The 0.02 rolling-resistance term is 5,883.99 N while moving, above the unchanged 3,000 N wheel-force cap: ground travel is severely restricted. The game explicitly warns about this. No compensator, power upgrade or hidden gravity reduction is implemented.
 
 ## Limits
 

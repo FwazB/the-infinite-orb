@@ -45,6 +45,14 @@ test('production build refuses sensitive public assets instead of silently copyi
   finally{rmSync(root,{recursive:true,force:true});}
 });
 
+test('production build rejects sensitive files beneath literal URL delimiters',async()=>{
+  for(const name of ['foo#/.env','foo?/.env','foo%23/.env','foo%3f/.env']){
+    const root=fixture();file(root,'public/'+name);
+    try{await assert.rejects(()=>build({configFile,root,logLevel:'silent'}),/Sensitive public asset/);}
+    finally{rmSync(root,{recursive:true,force:true});}
+  }
+});
+
 test('production build refuses public symlinks that could import files outside the release',async()=>{
   const root=fixture();file(root,'outside.txt');mkdirSync(join(root,'public'));
   symlinkSync(join(root,'outside.txt'),join(root,'public','innocent.txt'));

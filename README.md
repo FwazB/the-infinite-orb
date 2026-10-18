@@ -1,6 +1,8 @@
 # The Infinite Orb
 
-**King Kai-inspired 10g prototype — drive a gas-assisted enclosed scooter with whole-planet and first-person cockpit views. No character.**
+**Four-world prototype — King Kai, Earth, Namek and Beerus. Enclosed scooter, unlimited thrusters, overview and cockpit views.**
+
+The multi-world release includes fictional 100g Whis training, with its underpowered-engine limitations clearly disclosed. See [worlds, lore and explicit gravity assumptions](docs/WORLDS.md).
 
 Working title. Unofficial Dragon Ball-inspired fan concept, not a licensed release. The current geometry is an independently authored, disposable procedural blockout; it is not Fwaz's finished Blender model.
 
@@ -19,6 +21,9 @@ npm run dev
 Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback. For the production bundle, use `npm run build` then `npm run preview`. Do not run both servers on the same port. Stop with Ctrl-C.
 
 ## What works now
+
+- Header destination picker switches four distinct generated worlds, resets the ride and applies the selected gravity.
+- Beerus uses an inverted pyramid and flat 100g Whis training plateau, not spherical contact. The unchanged scooter is underpowered here: wheel movement is severely load-limited and lift cannot overcome gravity. Namek and Beerus gravity values are explicitly labeled non-canon gameplay assumptions.
 
 - Enclosed scooter silhouette with glass canopy, empty seat/dashboard, two wheels and cartoon shading.
 - A literal small spherical planet, a wraparound road, pastel trees, lakes, flowers and puffy clouds.

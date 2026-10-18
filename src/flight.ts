@@ -21,11 +21,11 @@ const norm=(a:Vector)=>Math.hypot(a.x,a.y,a.z);
 const unit=(a:Vector)=>scale(a,1/norm(a));
 
 /** Ground contact is an ideal no-slip constraint; airborne translation obeys Newton's laws. */
-function integrate(s:FlightState,input:FlightInput,dt:number):FlightState{
+function integrate(s:FlightState,input:FlightInput,dt:number,multiplier=10):FlightState{
   const p={x:s.x,y:s.y,z:s.z},radius=norm(p),n=scale(p,1/radius);
   let f=unit(add({x:s.fx,y:s.fy,z:s.fz},scale(n,-(s.fx*n.x+s.fy*n.y+s.fz*n.z))));
   let velocity=s.grounded?scale(f,s.speed):{x:s.velocityX,y:s.velocityY,z:s.velocityZ};
-  const mass=DRY_MASS+FUEL_CAPACITY,g=gravityAt(radius),radial=dot(velocity,n);
+  const mass=DRY_MASS+FUEL_CAPACITY,g=gravityAt(radius,multiplier),radial=dot(velocity,n);
   const tangentSpeed=norm(add(velocity,scale(n,-radial)));
   // The flight controller requests thrust, never an imposed vertical velocity or height.
   const requested=input.lift>0?mass*Math.max(0,g-tangentSpeed*tangentSpeed/radius+clamp((5*input.lift-radial)*12,-30,70)):0;
@@ -51,7 +51,7 @@ function integrate(s:FlightState,input:FlightInput,dt:number):FlightState{
   }else{
     // Steering changes the ideal attitude controller's heading, not airborne momentum.
     const external=scale(n,burn.deltaV/dt);
-    const moved=stepBallistic(p,velocity,external,dt);
+    const moved=stepBallistic(p,velocity,external,dt,multiplier);
     let position=moved.position;velocity=moved.velocity;
     let newRadius=norm(position);const normal=scale(position,1/newRadius);
     const rotation=cross(n,normal),cosine=dot(n,normal);
@@ -70,7 +70,7 @@ function integrate(s:FlightState,input:FlightInput,dt:number):FlightState{
   return {...next,fx:f.x,fy:f.y,fz:f.z,velocityX:velocity.x,velocityY:velocity.y,velocityZ:velocity.z};
 }
 
-export function stepFlight(previous:FlightState,input:FlightInput,dt:number):FlightState{
+export function stepFlight(previous:FlightState,input:FlightInput,dt:number,multiplier=10):FlightState{
   if(Object.values(previous).some(v=>typeof v==='number'&&!Number.isFinite(v)))return createState();
   if(!Number.isFinite(dt)||dt<=0)return {...previous};
   const r=Math.hypot(previous.x,previous.y,previous.z);
@@ -81,6 +81,6 @@ export function stepFlight(previous:FlightState,input:FlightInput,dt:number):Fli
   const controls={thrust:safe(input.thrust),turn:safe(input.turn),lift:safe(input.lift)};
   const duration=Math.min(dt,1/30),steps=Math.ceil(duration/(1/600)),h=duration/steps;
   let state={...previous,fuel:FUEL_CAPACITY};
-  for(let i=0;i<steps;i++)state=integrate(state,controls,h);
+  for(let i=0;i<steps;i++)state=integrate(state,controls,h,multiplier);
   return state;
 }

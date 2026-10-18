@@ -1,5 +1,9 @@
 # Tiny-planet playable decisions
 
+## Local multi-world extension
+
+The header now selects King Kai, Earth, Namek or Beerus. Switching pauses/resets the ride and returns to overview; R retains the destination. Three worlds use spherical contact; Beerus has a flat plateau and inverted-pyramid/tree-temple silhouette. Canon gravity, Earth reference and explicit gameplay assumptions are distinguished in the UI. See [worlds and sources](WORLDS.md). These are stylized scenes with decorative landmarks, not complete canonical geography or terrain collision.
+
 The selected setting is King Kai's small planet at 10g, following the user's official-lore choice. Earlier Supreme Kai / Grand Kai interpretations are superseded. The entire globe remains visible in the default Planet view. The enclosed scooter has no character; final vehicle design remains subject to Fwaz's approval.
 
 ## Movement

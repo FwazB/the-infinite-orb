@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "projectState": "public-prototype",
-  "publicReleaseApproved": true,
+  "projectState": "local-flight-prototype",
+  "publicReleaseApproved": false,
   "assets": [
     {
       "id": "motorcycle-blockout",
@@ -9,8 +9,8 @@
       "path": "src/motorcycle.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported geometry or textures",
-      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
-      "releaseStatus": "prototype-approved",
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
       "sha256": "eb9563f565a97775c39e057e3fa712e2a848cb0eedf5980dd36798d58b9037d9"
     },
     {
@@ -19,9 +19,9 @@
       "path": "src/view.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported geometry or textures",
-      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
-      "releaseStatus": "prototype-approved",
-      "sha256": "84158d35a75828a50d7d8bdad1e9b9ca08a7076f357fa5e9779865e942753748"
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "bea1776d027c24c8d82acc28c63dcade340592c659a78a6f564b4839ea4ec047"
     },
     {
       "id": "tiny-planet-world",
@@ -29,9 +29,9 @@
       "path": "src/planet-world.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported geometry or textures",
-      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
-      "releaseStatus": "prototype-approved",
-      "sha256": "399ea6366a05823a6da04a8ec786102f978514807f6cc9773cabf0a75b1315af"
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "b7d11fd1c992ed42d376dd94172637cbe1c121c497d32c85818b9f1a447ca132"
     },
     {
       "id": "gas-exhaust",
@@ -39,8 +39,8 @@
       "path": "src/exhaust.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported audio, geometry or textures",
-      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
-      "releaseStatus": "prototype-approved",
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
       "sha256": "441ba87b727fe405b0e69800a99c57dafa0730538a5cc37a2f2ef242f8fc8008"
     },
     {
@@ -49,11 +49,20 @@
       "path": "src/thruster-audio.ts",
       "creator": "project-local procedural implementation",
       "source": "independently authored here; no imported audio, geometry or textures",
-      "rightsBasis": "Independently authored procedural source; user approved this prototype for hosting. No franchise license or final design approval is asserted.",
-      "releaseStatus": "prototype-approved",
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
       "sha256": "9fbb572bf02ddc5f1f994e701019c6d670915ca61c5b8156eecbd9de0aeeca49"
+    },
+    {
+      "id": "world-landmarks",
+      "kind": "procedural-generator",
+      "path": "src/world-landmarks.ts",
+      "creator": "project-local procedural implementation",
+      "source": "Independently authored geometric primitives, descriptive lore references only; no imported assets",
+      "releaseStatus": "review-required",
+      "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
+      "sha256": "2c1dff39b9cc5d09666f3a73d90dc31041a7ed26434bad23141deff30988ad6a"
     }
   ],
-  "approvalScope": "prototype-hosting",
   "finalVehicleDesignApproved": false
 }

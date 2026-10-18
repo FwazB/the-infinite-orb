@@ -1,5 +1,6 @@
 import './style.css';
 import {Simulation} from './simulation';
+import {WORLDS,worldById} from './worlds';
 import {FUEL_CAPACITY,GRAVITY_MULTIPLIER,MAX_THRUST} from './physics';
 import {ThrusterAudio} from './thruster-audio';
 import type {FlightInput} from './flight';
@@ -9,7 +10,7 @@ const app=document.querySelector<HTMLElement>('#app')!;
 app.innerHTML=`
   <canvas id="world" tabindex="0" aria-label="Tiny cartoon planet. W and S drive the scooter, A and D steer, Space burns lift gas, Shift cuts thrust, V switches camera, P pauses, R resets."></canvas>
   <div class="wash" aria-hidden="true"></div>
-  <header><a class="wordmark" href="#" aria-label="The Infinite Orb, back to start"><span class="emblem" aria-hidden="true">✳</span> THE INFINITE ORB</a><span class="edition">KING KAI’S PLANET <b>10G</b></span><button id="pause" disabled>Pause <kbd>P</kbd></button></header>
+  <header><a class="wordmark" href="#" aria-label="The Infinite Orb, back to start"><span class="emblem" aria-hidden="true">✳</span> THE INFINITE ORB</a><label class="edition world-picker"><span class="sr-only">Destination</span><select id="destination" aria-label="Destination" disabled></select><b id="gravity-badge">10G</b></label><button id="pause" disabled>Pause <kbd>P</kbd></button></header>
   <section class="intro" aria-labelledby="title">
     <p class="eyebrow"><span></span> A LITTLE FURTHER FROM EVERYDAY</p>
     <h1 id="title">Tiny planet.<br><em>Heavy gravity.</em></h1>
@@ -17,7 +18,7 @@ app.innerHTML=`
     <button class="primary" id="launch" disabled aria-label="Ride scooter">Preparing scene <span aria-hidden="true">↗</span></button>
     <p class="small-print" id="support">Desktop keyboard · gas-assisted scooter · no rider</p>
   </section>
-  <div class="scene-note"><span class="marker"></span><div>TEN TIMES EARTH’S GRAVITY<br><small>Whole planet. Unlimited thruster fuel.</small></div></div>
+  <div class="scene-note"><span class="marker"></span><div><span id="gravity-note" data-basis="canon">10g · confirmed in the manga</span><br><small id="world-summary">Whole planet. Unlimited thruster fuel.</small></div></div>
   <section class="instruments" aria-label="Scooter instruments"><div><span>SPEED</span><p><output id="speed">00</output><small>m/s</small></p></div><i></i><div><span>HEIGHT</span><p><output id="altitude" data-value="0">00</output><small>m</small></p></div><i></i><div><span>TRAVELLED</span><p><output id="distance" data-value="0">00</output><small>m</small></p></div><i></i><div><span>THRUSTER</span><p><output id="fuel" aria-label="Unlimited thruster fuel" data-value="${FUEL_CAPACITY}">∞</output><small>fuel</small></p></div><i></i><div><span>SURFACE GRAVITY</span><p><output id="gravity" data-value="${GRAVITY_MULTIPLIER}">${GRAVITY_MULTIPLIER}</output><small>g</small></p></div></section>
   <p id="message" class="message" role="status">Preparing the scene…</p>
   <footer><div class="controls"><span><kbd>W S</kbd> drive / reverse</span><span><kbd>A D</kbd> steer</span><span><kbd>SPACE</kbd> gas lift</span><span><kbd>SHIFT</kbd> cut thrust</span><span class="orbit-hint">drag to look</span></div><button id="reset" aria-label="Back to start">↺ <span>Back to start</span></button></footer>
@@ -32,6 +33,8 @@ const message=byId('message');
 const motion=byId<HTMLInputElement>('motion');
 const quality=byId<HTMLInputElement>('quality');
 const sim=new Simulation();
+const destination=byId<HTMLSelectElement>('destination');
+for(const world of WORLDS){const option=document.createElement('option');option.value=world.id;option.textContent=world.name;destination.append(option);}
 const audio=new ThrusterAudio();
 const sound=byId<HTMLInputElement>('sound');
 let view:FlightView|undefined;
@@ -60,7 +63,7 @@ function pause(){
 function start(){
   if(!view||(mode!=='ready'&&mode!=='paused'))return;
   keys.clear();sim.resume();setMode('flying');pauseButton.disabled=false;last=performance.now();
-  canvas.focus({preventScroll:true});message.textContent='Hold W to ride. The road goes all the way around.';
+  canvas.focus({preventScroll:true});message.textContent=sim.world.id==='beerus'?'100g training: existing engines are underpowered. R resets.':'Hold W to ride. The road goes all the way around.';
 }
 function reset(){
   keys.clear();sim.reset();audio.update(0,false);view?.resetCamera();updateInstruments();message.textContent='Back at the start. Thruster fuel is unlimited.';
@@ -71,6 +74,20 @@ function failure(text:string){
   byId('title').innerHTML='A small<br><em>detour.</em>';byId('description').textContent=text;
   launch.disabled=false;launch.textContent='Reload scene';launch.setAttribute('aria-label','Reload scene');pauseButton.disabled=true;
 }
+function changeWorld(){
+  if(!view||mode==='error'||mode==='unsupported')return;
+  const world=worldById(destination.value);
+  keys.clear();dragging=false;audio.update(0,false);sim.changeWorld(world.id);view.setWorld(world);setMode('ready');
+  pauseButton.disabled=true;launch.disabled=false;launch.textContent='Ride scooter';launch.setAttribute('aria-label','Ride scooter');
+  byId('title').innerHTML='Another world.<br><em>A different pull.</em>';byId('description').textContent=world.description;
+  byId('gravity-badge').textContent=world.gravity+'G'+(world.gravityBasis==='assumed'?'*':'');
+  byId('gravity-note').textContent=world.gravityNote;byId('gravity-note').dataset.basis=world.gravityBasis;
+  byId('world-summary').textContent=world.shape==='plateau'?'Load-limited drive · lift cannot overcome 100g':'Spherical miniature · stylized scale';
+  byId('gravity').textContent=String(world.gravity);byId('gravity').dataset.value=String(world.gravity);
+  const button=byId('camera');button.innerHTML='View: Planet <kbd>V</kbd>';button.setAttribute('aria-label','Switch to cockpit view');button.setAttribute('aria-pressed','false');
+  document.body.dataset.camera='planet';updateInstruments();message.textContent='Destination changed. Your ride is reset and paused.';
+}
+on(destination,'change',changeWorld);
 function toggleCamera(){
   if(!view||mode==='error'||mode==='unsupported')return;
   const cockpit=view.toggleCamera(),button=byId('camera');
@@ -122,7 +139,7 @@ function loop(now:number){
     updateInstruments();
     canvas.dataset.audioRms=audio.update(sim.state.thrust/MAX_THRUST,mode==='flying').toFixed(6);
     if(mode==='flying'){
-      const text=sim.state.grounded?'W/S drive · A/D steer · Space lifts':'Release Space to fall · Shift cuts thrust · unlimited fuel';
+      const text=sim.world.id==='beerus'?'100g training · drive load-limited · lift underpowered · R resets':sim.state.grounded?'W/S drive · A/D steer · Space lifts':'Release Space to fall · Shift cuts thrust · unlimited fuel';
       if(message.textContent!==text)message.textContent=text;
     }
   }
@@ -139,7 +156,7 @@ async function boot(){
   }
   try{
     const {FlightView}=await import('./view');
-    view=new FlightView(canvas);byId<HTMLButtonElement>('camera').disabled=false;setMode('ready');launch.disabled=false;launch.innerHTML='Ride scooter <span aria-hidden="true">↗</span>';
+    view=new FlightView(canvas);destination.disabled=false;byId<HTMLButtonElement>('camera').disabled=false;setMode('ready');launch.disabled=false;launch.innerHTML='Ride scooter <span aria-hidden="true">↗</span>';
     message.textContent='Ready when you are.';last=performance.now();frame=requestAnimationFrame(loop);
   }catch(error){failure('This browser could not start the 3D scene. Enable hardware acceleration or try another desktop browser.');console.warn('Flight scene unavailable:',error);}
 }

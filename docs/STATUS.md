@@ -1,4 +1,14 @@
-# Verified prototype release — 2026-10-18
+# Multi-world release candidate — 2026-10-18
+
+Four destinations are implemented locally: King Kai (10g canon), Earth (1g reference), Namek (1.5g assumption) and Beerus (100g fictional Whis training mode, not natural planetary gravity). The latter two values are visibly marked not canon. Distinct scenery includes a domed Kai home, Earth highlands/island home, Namek village/Ajisa-inspired trees and an inverted-pyramid Beerus realm with a tree temple. Beerus uses flat contact and edge-fall respawn. Geometry/layout remain stylized, and landmarks are not obstacle colliders.
+
+The world picker resets/pauses safely and disposes replaced destination GPU resources. Tests covered per-world acceleration, selection/reset, flat contact/fall/respawn, destination landmarks, cockpit/lift/reset interactions and existing regressions. After the 100g update, final release verification passed 30 unit/integration tests, 14 development plus 14 production browser scenarios, typecheck/build, provenance validation and two validator regressions. The new checks establish actual 100g acceleration and confirm that bounded lift cannot overcome it. The unchanged wheel drive is severely load-limited; UI warnings disclose both limitations. All four destinations had earlier 1080p visual inspection; the updated 100g Beerus view was freshly inspected at 1080p. The short-desktop selector/launch layout also passed at 800x600 and 1280x720.
+
+Source publication and static hosting are authorized for this release. No new dependency, imported asset or portfolio edit is included. The delimiter-path build-guard gap is corrected by retaining and checking all path suffixes; regression fixtures cover literal and encoded question/hash delimiters. Release verification receipts are stored outside the public source tree.
+
+## Previously verified hosted prototype
+
+The evidence below applies to the preceding deployed King Kai release, not this local multi-world iteration.
 
 ## Live game
 

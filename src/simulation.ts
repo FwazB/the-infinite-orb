@@ -1,7 +1,12 @@
 import {createState,stepFlight,type FlightInput} from './flight';
+import {worldById} from './worlds';
+import {stepPlateau} from './plateau-flight';
 const STEP=1/60;
 /** Renderer-independent fixed-step clock. Never catches up hidden-tab time. */
 export class Simulation {
+  private selectedWorld=worldById('king-kai');
+  get world(){return this.selectedWorld;}
+  changeWorld(id:string){const world=worldById(id);this.pause();this.selectedWorld=world;this.reset();}
   state=createState();
   previous=createState();
   running=false;
@@ -15,7 +20,7 @@ export class Simulation {
     this.accumulator+=Math.min(seconds,0.1);
     while(this.accumulator+1e-10>=STEP){
       this.previous=this.state;
-      this.state=stepFlight(this.state,input,STEP);
+      this.state=this.world.shape==='plateau'?stepPlateau(this.state,input,STEP,this.world.gravity):stepFlight(this.state,input,STEP,this.world.gravity);
       this.accumulator=Math.max(0,this.accumulator-STEP);
     }
   }

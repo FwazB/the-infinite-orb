@@ -4,15 +4,15 @@ export const GRAVITY_MULTIPLIER=10;
 export const SURFACE_GRAVITY=GRAVITY_MULTIPLIER*EARTH_GRAVITY;
 export const PLANET_RADIUS=18;
 export const MU=SURFACE_GRAVITY*PLANET_RADIUS**2;
-export const gravityAt=(radius:number)=>MU/(radius*radius);
+export const gravityAt=(radius:number,multiplier=GRAVITY_MULTIPLIER)=>EARTH_GRAVITY*multiplier*PLANET_RADIUS**2/(radius*radius);
 export const DRY_MASS=220;
 export const FUEL_CAPACITY=80;
 export const MAX_THRUST=45000;
 export interface Vector{x:number;y:number;z:number}
 /** Velocity-Verlet for a point mass under central gravity and an external acceleration. */
-export function stepBallistic(p:Vector,v:Vector,external:Vector,dt:number){
+export function stepBallistic(p:Vector,v:Vector,external:Vector,dt:number,multiplier=GRAVITY_MULTIPLIER){
   const acceleration=(q:Vector)=>{
-    const scale=-MU/Math.hypot(q.x,q.y,q.z)**3;
+    const scale=-EARTH_GRAVITY*multiplier*PLANET_RADIUS**2/Math.hypot(q.x,q.y,q.z)**3;
     return {x:q.x*scale+external.x,y:q.y*scale+external.y,z:q.z*scale+external.z};
   };
   const a=acceleration(p),half=dt*dt/2;
