@@ -37,7 +37,7 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 - Mouse-drag camera orbit, reduced-motion setting and low-resolution graphics option.
 - Readable small-screen/unsupported-WebGL fallbacks. No touch gameplay.
 
-Click **Ride scooter**. **W/S** accelerate/brake/reverse; **A/D** steer; **E** charges starter power while stopped; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
+Click **Ride scooter**. **W/S** accelerate/brake/reverse; the drive-velocity readout is positive forward and negative in reverse; **A/D** steer; **E** charges starter power while stopped; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
 
 ## Not built yet
 

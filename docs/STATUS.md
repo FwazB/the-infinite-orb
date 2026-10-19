@@ -1,3 +1,7 @@
+# Signed drive velocity release
+
+The HUD now shows signed forward/reverse drive velocity (+ forward, - reverse, 00 stopped) instead of hiding direction with an absolute speed value. Existing reverse physics and stage thresholds are unchanged. This is not vertical climb/descent velocity. Verified 44 unit/integration tests, six focused development and six production-preview browser scenarios, and typecheck/build. Browser checks cover braking into reverse on King Kai and Beerus, reset, and display fit at 1920x1080, 1280x720 and 800x600. The 1080p Beerus capture was inspected. Production publication is authorized; deployment evidence is recorded outside the public source tree.
+
 # Starter power-up release
 
 Hold E for two uninterrupted seconds at Stock, grounded and stopped, to prime Stage I. This makes a fresh Beerus start able to drive and lift without lowering 100g. Cooldown is 12 seconds from activation; the ordinary four-second slowdown downgrade remains. Higher stages still require speed. HUD charging/cooling feedback, pause cancellation, cooldown preservation across worlds and reset behavior are covered.
