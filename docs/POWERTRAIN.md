@@ -9,9 +9,15 @@ This local prototype uses the user-approved 1 / 50 / 100 / 400 output progressio
 - Stage III: ×400, unlock at 22 m/s, hold above 15 m/s.
 - Stay above the next threshold for 1.5 continuous simulation seconds to advance one stage.
 - Stay below the current holding threshold for 4 continuous simulation seconds to lose one stage. Each further loss needs its own four seconds. Recovering speed clears the countdown.
-- Only forward grounded driving earns upgrades. Reverse, freefall and hovering cannot farm upgrades. Forward motion or positive climb speed can maintain an earned stage in flight; falling speed alone does not count.
-- Pausing freezes timers. Destination changes carry earned hardware but reset position and timers. R, a fall-respawn or reload returns to Stock. No saved progression or backend.
-- Earn a stage on King Kai before moving to the 100g plateau. Stock cannot get moving or lift there; upgraded thrusters can lift. Leaving a low-gravity sphere at high speed is a physical consequence, not a guaranteed ability to reach every stage on every world.
+- Beyond the manual starter below, only forward grounded driving earns upgrades. Reverse, freefall and hovering cannot farm upgrades. Forward motion or positive climb speed can maintain an earned stage in flight; falling speed alone does not count.
+- Pausing freezes progression/cooldown and cancels partial starter charge. Destination changes carry hardware and starter cooldown but reset position and progression timers. R, a fall-respawn or reload returns to Stock. No saved progression or backend.
+- Stock cannot get moving or lift on the 100g plateau. Charge the starter there or bring a stage from King Kai; upgraded thrusters can lift. Leaving a low-gravity sphere at high speed is a physical consequence, not a guaranteed ability to reach every stage on every world.
+
+## Starter power-up
+
+Hold **E** for 2 uninterrupted simulation seconds at Stock while grounded, below 0.5 m/s, with drive and lift released. The fictional capacitor primes **Stage I only**; it does not teleport, multiply velocity or reduce gravity. Releasing E, driving or lifting cancels partial charge. Stages II/III still require speed.
+
+The 12-second cooldown starts on activation. The normal 4-second slowdown grace still applies: drive above 4 m/s or climb fast enough to keep Stage I. Sitting still loses the stage and cannot immediately re-charge. Cooldown pauses with the game and survives world switching. R and fall-respawn start a fresh attempt. A dedicated HUD bar shows charging and cooldown. These are gameplay tuning values, not a canon technique or an energy-storage simulation.
 
 ## Mechanics
 

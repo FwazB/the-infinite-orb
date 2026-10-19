@@ -6,7 +6,7 @@ export interface FlightState {
   speed:number; vy:number; altitude:number; bank:number; distance:number; grounded:boolean;
   velocityX:number; velocityY:number; velocityZ:number; fuel:number; thrust:number;
 }
-export interface FlightInput { thrust:number; turn:number; lift:number }
+export interface FlightInput { thrust:number; turn:number; lift:number; powerUp?:boolean }
 export const IDLE:Readonly<FlightInput>=Object.freeze({thrust:0,turn:0,lift:0});
 export const FLOOR=0.86;
 const CONTACT_RADIUS=PLANET_RADIUS+FLOOR;

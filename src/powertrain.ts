@@ -7,12 +7,26 @@ export const STAGES=Object.freeze([
 ] as const);
 export const UPSHIFT_SECONDS=1.5;
 export const DOWNSHIFT_SECONDS=4;
+export const STARTER_SECONDS=2;
+export const STARTER_COOLDOWN=12;
 export class Powertrain {
  stage=0;
+ starterCharge=0;
+ starterCooldown=0;
  charge=0;
  slow=0;
  get spec(){return STAGES[this.stage];}
- reset(){this.stage=0;this.charge=0;this.slow=0;}
+ reset(){this.stage=0;this.charge=0;this.slow=0;this.starterCharge=0;this.starterCooldown=0;}
+ /** Stationary capacitor charge supplies only the starting stage, never higher tiers. */
+ chargeStarter(held:boolean,stationary:boolean,dt:number){
+  if(!Number.isFinite(dt)||dt<=0)return;
+  this.starterCooldown=Math.max(0,this.starterCooldown-dt);
+  if(!held||!stationary||this.stage!==0||this.starterCooldown>0){this.starterCharge=0;return;}
+  this.starterCharge+=dt;
+  if(this.starterCharge+1e-9>=STARTER_SECONDS){
+   this.stage=1;this.clearTimers();this.starterCharge=0;this.starterCooldown=STARTER_COOLDOWN;
+  }
+ }
  clearTimers(){this.charge=0;this.slow=0;}
  advance(speed:number,dt:number,canCharge=true){
   if(!Number.isFinite(speed)||!Number.isFinite(dt)||dt<=0)return;

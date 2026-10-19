@@ -7,7 +7,7 @@ const STEP=1/60;
 export class Simulation {
   private selectedWorld=worldById('king-kai');
   get world(){return this.selectedWorld;}
-  changeWorld(id:string){const world=worldById(id),stage=this.powertrain.stage;this.pause();this.selectedWorld=world;this.reset();this.powertrain.stage=stage;}
+  changeWorld(id:string){const world=worldById(id),stage=this.powertrain.stage,cooldown=this.powertrain.starterCooldown;this.pause();this.selectedWorld=world;this.reset();this.powertrain.stage=stage;this.powertrain.starterCooldown=cooldown;}
   readonly powertrain=new Powertrain();
   state=createState();
   previous=createState();
@@ -15,13 +15,14 @@ export class Simulation {
   private accumulator=0;
   get alpha(){return this.accumulator/STEP;}
   resume(){this.accumulator=0;this.running=true;}
-  pause(){this.running=false;this.accumulator=0;this.previous={...this.state};}
+  pause(){this.powertrain.starterCharge=0;this.running=false;this.accumulator=0;this.previous={...this.state};}
   reset(){this.powertrain.reset();this.state=createState();this.previous=createState();this.accumulator=0;}
   advance(seconds:number,input:FlightInput){
     if(!this.running||!Number.isFinite(seconds)||seconds<=0)return;
     this.accumulator+=Math.min(seconds,0.1);
     while(this.accumulator+1e-10>=STEP){
       this.previous=this.state;
+      this.powertrain.chargeStarter(input.powerUp===true,this.state.grounded&&Math.abs(this.state.speed)<0.5&&input.thrust===0&&input.lift<=0,STEP);
       this.state=this.world.shape==='plateau'?stepPlateau(this.state,input,STEP,this.world.gravity,this.powertrain.stage):stepFlight(this.state,input,STEP,this.world.gravity,this.powertrain.stage);
       const forwardSpeed=Math.max(0,this.state.speed,this.state.grounded?0:this.state.vy);
       if(this.state.distance===0&&this.previous.distance>0)this.powertrain.reset();

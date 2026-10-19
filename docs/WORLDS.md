@@ -13,7 +13,7 @@ Unknown gravity values always carry an asterisk in the badge and an explicit `no
 
 ## Physics and geography boundary
 
-Spherical destinations share an 18 m gameplay radius, not a claimed canonical size. Their force law uses the selected multiplier times Earth reference gravity at that radius, falling off with inverse square distance. Thrust remains bounded and fuel unlimited. At 100g, the 300 kg scooter in Stock cannot lift with its 45 kN thruster or overcome rolling resistance. Earned [powertrain stages](POWERTRAIN.md) now explicitly increase output capacity and carry between destinations; their timers resume when driving resumes.
+Spherical destinations share an 18 m gameplay radius, not a claimed canonical size. Their force law uses the selected multiplier times Earth reference gravity at that radius, falling off with inverse square distance. Thrust remains bounded and fuel unlimited. At 100g, the 300 kg scooter in Stock cannot lift with its 45 kN thruster or overcome rolling resistance. [Powertrain stages](POWERTRAIN.md) explicitly increase output capacity and carry between destinations. A two-second stationary E charge grants Stage I on the plateau itself, with a 12-second cooldown and the normal slowdown downgrade; no trip to another planet is required.
 
 Beerus's destination intentionally is **not a sphere**: a 28 m square plateau sits atop an inverted pyramid. Its simplified local field is constant downward gravity. Driving off the edge causes a fall and a reset below the world. This flat-field approximation, platform size and respawn are game rules, not canon physics. Temples, mountains, water and trees are decorative and do not yet have obstacle collision or terrain-following suspension. All destinations retain optional cockpit view.
 

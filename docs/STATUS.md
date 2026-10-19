@@ -1,3 +1,9 @@
+# Starter power-up release
+
+Hold E for two uninterrupted seconds at Stock, grounded and stopped, to prime Stage I. This makes a fresh Beerus start able to drive and lift without lowering 100g. Cooldown is 12 seconds from activation; the ordinary four-second slowdown downgrade remains. Higher stages still require speed. HUD charging/cooling feedback, pause cancellation, cooldown preservation across worlds and reset behavior are covered.
+
+Verified: 44 unit/integration tests, 19 development and 19 production-preview browser scenarios; typecheck/build, unused-symbol check and documentation/provenance validation passed. Real keyboard tests exercised a fresh Beerus start, charge, drive, lift, idle loss, cooldown and reset. A 1080p capture was visually inspected. No new dependency or visual asset. Local test listeners are closed. Production publication is authorized for this starter update; deployment verification is recorded outside the public source tree. Difficulty tuning still needs hands-on feedback.
+
 # Powertrain and intro-layout release
 
 Automatic speed-earned stages, hysteresis/countdown, carried hardware between destinations, bounded torque/power/traction, stage aura and instanced cloud exhaust are implemented locally. See [powertrain rules](POWERTRAIN.md). The intro panel is bounded away from the fixed HUD and scrolls for larger text/short viewports. Verification: 38 unit/integration tests, 16 development and 16 production-preview browser scenarios passed; the final stage/layout refinements also passed a focused development rerun. Typecheck/build, unused-symbol checks and provenance validation passed. Stage III aura/cloud screenshots were inspected at 1080p. No new dependencies. The user authorized GitHub publication and static Vercel hosting for this update; deployment verification is recorded outside the public source tree. The following multi-world verification is the preceding release history.

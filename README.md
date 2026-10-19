@@ -25,7 +25,7 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 - Automatic powertrain stages, colored auras and cloud exhaust; see [stage rules](docs/POWERTRAIN.md). Includes the bounded, scrollable intro-layout fix.
 
 - Header destination picker switches four distinct generated worlds, resets the ride and applies the selected gravity.
-- Beerus uses an inverted pyramid and flat 100g Whis training plateau, not spherical contact. Stock hardware is underpowered here. Earn a powertrain stage on King Kai and carry it over for stronger wheel drive and lift. Namek and Beerus gravity values are explicitly labeled non-canon gameplay assumptions.
+- Beerus uses an inverted pyramid and flat 100g Whis training plateau, not spherical contact. Stock hardware is underpowered here. Hold E for 2 seconds while stopped to charge a Stage I starter boost, or bring earned hardware from King Kai. The starter has a 12-second cooldown; idle power still fades. Namek and Beerus gravity values are explicitly labeled non-canon gameplay assumptions.
 
 - Enclosed scooter silhouette with glass canopy, empty seat/dashboard, two wheels and cartoon shading.
 - A literal small spherical planet, a wraparound road, pastel trees, lakes, flowers and puffy clouds.
@@ -37,7 +37,7 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 - Mouse-drag camera orbit, reduced-motion setting and low-resolution graphics option.
 - Readable small-screen/unsupported-WebGL fallbacks. No touch gameplay.
 
-Click **Ride scooter**. **W/S** accelerate/brake/reverse; **A/D** steer; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
+Click **Ride scooter**. **W/S** accelerate/brake/reverse; **A/D** steer; **E** charges starter power while stopped; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
 
 ## Not built yet
 
