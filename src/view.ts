@@ -1,6 +1,7 @@
 import * as T from 'three';
 import {GasExhaust} from './exhaust';
 import {MAX_THRUST} from './physics';
+import {StageAura} from './stage-aura';
 import {worldById,type WorldDefinition} from './worlds';
 import {disposeWorld} from './world-landmarks';
 import {createMotorcycle} from './motorcycle';
@@ -32,6 +33,7 @@ export class FlightView {
   private projectedCenter=new T.Vector3();
   private projectedBike=new T.Vector3();
   private exhaust=new GasExhaust();
+  private aura=new StageAura();
   private velocity=new T.Vector3();
   private orbitAngle=0;
   private orbitHeight=0;
@@ -51,7 +53,7 @@ export class FlightView {
     const sun=new T.DirectionalLight('#fff6df',1.15);sun.position.set(-25,60,40);this.scene.add(sun);
     this.worldGroup=createPlanet(this.gradient,this.world);this.scene.add(this.worldGroup);
     this.canvas.dataset.destination=this.world.id;
-    this.bike=createMotorcycle(this.gradient);this.scene.add(this.bike.root);
+    this.bike=createMotorcycle(this.gradient);this.scene.add(this.bike.root);this.scene.add(this.aura.root);
     this.shadow=new T.Mesh(new T.CircleGeometry(1,40),new T.MeshBasicMaterial({color:'#433458',transparent:true,opacity:0.2,depthWrite:false}));this.scene.add(this.shadow);
     this.scene.add(this.exhaust.mesh);
     canvas.dataset.world='tiny-planet';
@@ -72,7 +74,7 @@ export class FlightView {
   quality(low:boolean){this.renderer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.5));this.resize();}
   orbit(dx:number,dy:number){this.orbitAngle+=dx*0.006;this.orbitHeight=T.MathUtils.clamp(this.orbitHeight+dy*0.003,-0.18,0.4);this.orbitAge=0;}
   resetCamera(){this.exhaust.clear();this.orbitAngle=0;this.orbitHeight=0;this.needsSnap=true;for(const wheel of this.bike.wheels)wheel.rotation.x=0;}
-  render(s:FlightState,previous:FlightState,alpha:number,dt:number,preview:boolean,reduced:boolean,animate:boolean){
+  render(s:FlightState,previous:FlightState,alpha:number,dt:number,preview:boolean,reduced:boolean,animate:boolean,stage=0){
     const altitude=T.MathUtils.lerp(previous.altitude,s.altitude,alpha);
     this.position.set(T.MathUtils.lerp(previous.x,s.x,alpha),T.MathUtils.lerp(previous.y,s.y,alpha),T.MathUtils.lerp(previous.z,s.z,alpha));
     const plateau=this.world.shape==='plateau';
@@ -91,8 +93,11 @@ export class FlightView {
     this.shadow.quaternion.copy(this.bodyFrame).multiply(this.flatShadow);
     this.shadow.scale.set(1+altitude*0.06,1.7+altitude*0.06,1);
     (this.shadow.material as T.MeshBasicMaterial).opacity=0.22/(1+altitude*0.35);
+    this.aura.root.position.copy(this.position);this.aura.root.quaternion.copy(this.bodyFrame);
+    this.aura.update(stage,dt,reduced,this.firstPerson,animate);
+    this.canvas.dataset.aura=this.aura.root.visible?String(stage):'0';
     this.velocity.set(s.velocityX,s.velocityY,s.velocityZ);
-    this.exhaust.update(this.position,this.up,this.right,this.back,this.velocity,animate?s.thrust/MAX_THRUST:0,animate?dt:0,reduced);
+    this.exhaust.update(this.position,this.up,this.right,this.back,this.velocity,animate?Math.min(1,s.thrust/MAX_THRUST):0,animate?dt:0,reduced);
     this.canvas.dataset.plumes=String(this.exhaust.mesh.count);
     const framedAltitude=altitude+(plateau?20:0);
     const extent=PLANET_RADIUS+FLOOR+framedAltitude+5,cameraDistance=Math.max(75,2*extent);

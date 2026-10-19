@@ -22,8 +22,10 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 
 ## What works now
 
+- Automatic powertrain stages, colored auras and cloud exhaust; see [stage rules](docs/POWERTRAIN.md). Includes the bounded, scrollable intro-layout fix.
+
 - Header destination picker switches four distinct generated worlds, resets the ride and applies the selected gravity.
-- Beerus uses an inverted pyramid and flat 100g Whis training plateau, not spherical contact. The unchanged scooter is underpowered here: wheel movement is severely load-limited and lift cannot overcome gravity. Namek and Beerus gravity values are explicitly labeled non-canon gameplay assumptions.
+- Beerus uses an inverted pyramid and flat 100g Whis training plateau, not spherical contact. Stock hardware is underpowered here. Earn a powertrain stage on King Kai and carry it over for stronger wheel drive and lift. Namek and Beerus gravity values are explicitly labeled non-canon gameplay assumptions.
 
 - Enclosed scooter silhouette with glass canopy, empty seat/dashboard, two wheels and cartoon shading.
 - A literal small spherical planet, a wraparound road, pastel trees, lakes, flowers and puffy clouds.

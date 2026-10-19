@@ -1,3 +1,7 @@
+# Powertrain and intro-layout release
+
+Automatic speed-earned stages, hysteresis/countdown, carried hardware between destinations, bounded torque/power/traction, stage aura and instanced cloud exhaust are implemented locally. See [powertrain rules](POWERTRAIN.md). The intro panel is bounded away from the fixed HUD and scrolls for larger text/short viewports. Verification: 38 unit/integration tests, 16 development and 16 production-preview browser scenarios passed; the final stage/layout refinements also passed a focused development rerun. Typecheck/build, unused-symbol checks and provenance validation passed. Stage III aura/cloud screenshots were inspected at 1080p. No new dependencies. The user authorized GitHub publication and static Vercel hosting for this update; deployment verification is recorded outside the public source tree. The following multi-world verification is the preceding release history.
+
 # Multi-world release candidate — 2026-10-18
 
 Four destinations are implemented locally: King Kai (10g canon), Earth (1g reference), Namek (1.5g assumption) and Beerus (100g fictional Whis training mode, not natural planetary gravity). The latter two values are visibly marked not canon. Distinct scenery includes a domed Kai home, Earth highlands/island home, Namek village/Ajisa-inspired trees and an inverted-pyramid Beerus realm with a tree temple. Beerus uses flat contact and edge-fall respawn. Geometry/layout remain stylized, and landmarks are not obstacle colliders.

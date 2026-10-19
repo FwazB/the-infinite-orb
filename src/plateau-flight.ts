@@ -1,8 +1,9 @@
 import {createState,FLOOR,type FlightState,type FlightInput} from './flight';
 import {EARTH_GRAVITY,PLANET_RADIUS,DRY_MASS,FUEL_CAPACITY,applyThruster} from './physics';
+import {STAGES,driveSpeed} from './powertrain';
 export const PLATEAU_HALF=14;
 /** Flat training-ground approximation. Scenic tree/temples are not obstacle colliders. */
-export function stepPlateau(previous:FlightState,input:FlightInput,dt:number,multiplier:number):FlightState{
+export function stepPlateau(previous:FlightState,input:FlightInput,dt:number,multiplier:number,stage=0):FlightState{
  if(Object.values(previous).some(v=>typeof v==='number'&&!Number.isFinite(v)))return createState();
  if(!Number.isFinite(dt)||dt<=0)return {...previous};
  const duration=Math.min(dt,1/30),steps=Math.ceil(duration/(1/600)),h=duration/steps;
@@ -14,13 +15,10 @@ export function stepPlateau(previous:FlightState,input:FlightInput,dt:number,mul
   const heading=Math.atan2(s.fx,-s.fz)-turn*1.35*h;
   s.fx=Math.sin(heading);s.fy=0;s.fz=-Math.cos(heading);
   const supported=Math.abs(s.x)<=PLATEAU_HALF&&Math.abs(s.z)<=PLATEAU_HALF&&s.y>=floor-0.01;
-  const burn=applyThruster(lift>0?mass*(g+Math.max(-30,Math.min(70,(5*lift-s.vy)*12))):0,h);
+  const spec=STAGES[stage]??STAGES[0];
+  const burn=applyThruster(lift>0?mass*(g+Math.max(-30,Math.min(70,(spec.liftLimit*lift-s.vy)*12))):0,h,spec.multiplier);
   if(s.grounded&&supported){
-   const target=drive>0?8*drive:3*drive;
-   const resistance=Math.sign(s.speed)*0.02*g;
-   const motor=drive!==0?Math.max(-10,Math.min(10,(target-s.speed)*4+resistance)):0;
-   const speed=s.speed+(motor-resistance)*h;
-   s.speed=drive===0&&Math.sign(speed)!==Math.sign(s.speed)?0:speed;
+   s.speed=driveSpeed(s.speed,drive,mass,Math.max(0,mass*g-burn.thrust),h,stage);
    s.velocityX=s.fx*s.speed;s.velocityZ=s.fz*s.speed;
   }
   s.x+=s.velocityX*h;s.z+=s.velocityZ*h;

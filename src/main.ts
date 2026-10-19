@@ -1,6 +1,7 @@
 import './style.css';
 import {Simulation} from './simulation';
 import {WORLDS,worldById} from './worlds';
+import {STAGES,UPSHIFT_SECONDS,DOWNSHIFT_SECONDS} from './powertrain';
 import {FUEL_CAPACITY,GRAVITY_MULTIPLIER,MAX_THRUST} from './physics';
 import {ThrusterAudio} from './thruster-audio';
 import type {FlightInput} from './flight';
@@ -19,6 +20,7 @@ app.innerHTML=`
     <p class="small-print" id="support">Desktop keyboard · gas-assisted scooter · no rider</p>
   </section>
   <div class="scene-note"><span class="marker"></span><div><span id="gravity-note" data-basis="canon">10g · confirmed in the manga</span><br><small id="world-summary">Whole planet. Unlimited thruster fuel.</small></div></div>
+  <section class="powertrain-panel" aria-label="Powertrain stage"><strong id="stage" data-stage="0">Stock · ×1</strong><span id="stage-hint">Drive at 6 m/s to charge</span><progress id="stage-progress" max="1" value="0" aria-label="Stage charge"></progress></section>
   <section class="instruments" aria-label="Scooter instruments"><div><span>SPEED</span><p><output id="speed">00</output><small>m/s</small></p></div><i></i><div><span>HEIGHT</span><p><output id="altitude" data-value="0">00</output><small>m</small></p></div><i></i><div><span>TRAVELLED</span><p><output id="distance" data-value="0">00</output><small>m</small></p></div><i></i><div><span>THRUSTER</span><p><output id="fuel" aria-label="Unlimited thruster fuel" data-value="${FUEL_CAPACITY}">∞</output><small>fuel</small></p></div><i></i><div><span>SURFACE GRAVITY</span><p><output id="gravity" data-value="${GRAVITY_MULTIPLIER}">${GRAVITY_MULTIPLIER}</output><small>g</small></p></div></section>
   <p id="message" class="message" role="status">Preparing the scene…</p>
   <footer><div class="controls"><span><kbd>W S</kbd> drive / reverse</span><span><kbd>A D</kbd> steer</span><span><kbd>SPACE</kbd> gas lift</span><span><kbd>SHIFT</kbd> cut thrust</span><span class="orbit-hint">drag to look</span></div><button id="reset" aria-label="Back to start">↺ <span>Back to start</span></button></footer>
@@ -46,6 +48,12 @@ const events=new AbortController();
 const on=(target:EventTarget,name:string,fn:EventListener)=>target.addEventListener(name,fn,{signal:events.signal});
 function setMode(next:typeof mode){mode=next;document.body.dataset.mode=next;}
 function updateInstruments(){
+  const power=sim.powertrain,spec=power.spec,next=STAGES[power.stage+1];
+  if(sim.world.id==='beerus')byId('world-summary').textContent=power.stage===0?'Load-limited drive · lift cannot overcome 100g':'Earned stage carried over · upgraded lift available';
+  byId('stage').textContent=`${spec.name} · ×${spec.multiplier}`;byId('stage').dataset.stage=String(power.stage);
+  const hint=power.slow>0?`Drop in ${(DOWNSHIFT_SECONDS-power.slow).toFixed(1)}s · hold ${spec.hold} m/s`:next?`Drive ${next.enter} m/s for ${UPSHIFT_SECONDS}s · ${(power.charge/UPSHIFT_SECONDS*100).toFixed(0)}%`:'Maximum stage · hold 15 m/s';
+  byId('stage-hint').textContent=hint;
+  byId<HTMLProgressElement>('stage-progress').value=power.slow>0?1-power.slow/DOWNSHIFT_SECONDS:next?power.charge/UPSHIFT_SECONDS:1;
   byId('speed').textContent=Math.abs(sim.state.speed).toFixed(0).padStart(2,'0');
   byId('fuel').textContent='∞';byId('fuel').dataset.value=sim.state.fuel.toFixed(3);
   const altitude=sim.state.altitude;
@@ -63,7 +71,7 @@ function pause(){
 function start(){
   if(!view||(mode!=='ready'&&mode!=='paused'))return;
   keys.clear();sim.resume();setMode('flying');pauseButton.disabled=false;last=performance.now();
-  canvas.focus({preventScroll:true});message.textContent=sim.world.id==='beerus'?'100g training: existing engines are underpowered. R resets.':'Hold W to ride. The road goes all the way around.';
+  canvas.focus({preventScroll:true});message.textContent=sim.world.id==='beerus'?(sim.powertrain.stage===0?'100g training: stock engines are underpowered. Earn a stage on King Kai first.':'100g training: earned powertrain active. Keep moving to retain it.'):'Hold W to ride. The road goes all the way around.';
 }
 function reset(){
   keys.clear();sim.reset();audio.update(0,false);view?.resetCamera();updateInstruments();message.textContent='Back at the start. Thruster fuel is unlimited.';
@@ -82,7 +90,7 @@ function changeWorld(){
   byId('title').innerHTML='Another world.<br><em>A different pull.</em>';byId('description').textContent=world.description;
   byId('gravity-badge').textContent=world.gravity+'G'+(world.gravityBasis==='assumed'?'*':'');
   byId('gravity-note').textContent=world.gravityNote;byId('gravity-note').dataset.basis=world.gravityBasis;
-  byId('world-summary').textContent=world.shape==='plateau'?'Load-limited drive · lift cannot overcome 100g':'Spherical miniature · stylized scale';
+  byId('world-summary').textContent=world.shape==='plateau'?(sim.powertrain.stage===0?'Load-limited drive · lift cannot overcome 100g':'Earned stage carried over · upgraded lift available'):'Spherical miniature · stylized scale';
   byId('gravity').textContent=String(world.gravity);byId('gravity').dataset.value=String(world.gravity);
   const button=byId('camera');button.innerHTML='View: Planet <kbd>V</kbd>';button.setAttribute('aria-label','Switch to cockpit view');button.setAttribute('aria-pressed','false');
   document.body.dataset.camera='planet';updateInstruments();message.textContent='Destination changed. Your ride is reset and paused.';
@@ -135,11 +143,11 @@ function loop(now:number){
   const dt=Math.min(0.1,Math.max(0,(now-last)/1000));last=now;
   if(mode!=='error'&&!document.hidden){
     sim.advance(dt,input());
-    view?.render(sim.state,sim.previous,sim.running?sim.alpha:1,dt,mode==='ready'||mode==='paused',motion.checked,mode==='flying');
+    view?.render(sim.state,sim.previous,sim.running?sim.alpha:1,dt,mode==='ready'||mode==='paused',motion.checked,mode==='flying',sim.powertrain.stage);
     updateInstruments();
-    canvas.dataset.audioRms=audio.update(sim.state.thrust/MAX_THRUST,mode==='flying').toFixed(6);
+    canvas.dataset.audioRms=audio.update(sim.state.thrust/(MAX_THRUST*sim.powertrain.spec.multiplier),mode==='flying').toFixed(6);
     if(mode==='flying'){
-      const text=sim.world.id==='beerus'?'100g training · drive load-limited · lift underpowered · R resets':sim.state.grounded?'W/S drive · A/D steer · Space lifts':'Release Space to fall · Shift cuts thrust · unlimited fuel';
+      const text=sim.world.id==='beerus'?(sim.powertrain.stage===0?'100g training · drive load-limited · lift underpowered · R resets':'100g training · staged lift active · keep moving to retain output'):sim.state.grounded?'W/S drive · A/D steer · Space lifts':'Release Space to fall · Shift cuts thrust · unlimited fuel';
       if(message.textContent!==text)message.textContent=text;
     }
   }

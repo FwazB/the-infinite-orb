@@ -1,5 +1,6 @@
 import {PLANET_RADIUS,DRY_MASS,FUEL_CAPACITY,applyThruster,gravityAt,stepBallistic,type Vector} from './physics';
 export {PLANET_RADIUS} from './physics';
+import {STAGES,driveSpeed} from './powertrain';
 export interface FlightState {
   x:number; y:number; z:number; fx:number; fy:number; fz:number;
   speed:number; vy:number; altitude:number; bank:number; distance:number; grounded:boolean;
@@ -21,15 +22,16 @@ const norm=(a:Vector)=>Math.hypot(a.x,a.y,a.z);
 const unit=(a:Vector)=>scale(a,1/norm(a));
 
 /** Ground contact is an ideal no-slip constraint; airborne translation obeys Newton's laws. */
-function integrate(s:FlightState,input:FlightInput,dt:number,multiplier=10):FlightState{
+function integrate(s:FlightState,input:FlightInput,dt:number,multiplier=10,stage=0):FlightState{
   const p={x:s.x,y:s.y,z:s.z},radius=norm(p),n=scale(p,1/radius);
   let f=unit(add({x:s.fx,y:s.fy,z:s.fz},scale(n,-(s.fx*n.x+s.fy*n.y+s.fz*n.z))));
   let velocity=s.grounded?scale(f,s.speed):{x:s.velocityX,y:s.velocityY,z:s.velocityZ};
   const mass=DRY_MASS+FUEL_CAPACITY,g=gravityAt(radius,multiplier),radial=dot(velocity,n);
   const tangentSpeed=norm(add(velocity,scale(n,-radial)));
   // The flight controller requests thrust, never an imposed vertical velocity or height.
-  const requested=input.lift>0?mass*Math.max(0,g-tangentSpeed*tangentSpeed/radius+clamp((5*input.lift-radial)*12,-30,70)):0;
-  const burn=applyThruster(requested,dt);
+  const spec=STAGES[stage]??STAGES[0];
+  const requested=input.lift>0?mass*Math.max(0,g-tangentSpeed*tangentSpeed/radius+clamp((spec.liftLimit*input.lift-radial)*12,-30,70)):0;
+  const burn=applyThruster(requested,dt,spec.multiplier);
   const support=mass*(g-tangentSpeed*tangentSpeed/radius)-burn.thrust;
   const yawLimit=s.grounded?Math.min(1.7,0.7*Math.max(0,support)/(mass*Math.max(0.1,Math.abs(s.speed)))):1.7;
   const yaw=-input.turn*yawLimit*dt;
@@ -38,11 +40,7 @@ function integrate(s:FlightState,input:FlightInput,dt:number,multiplier=10):Flig
   next.bank+=(-input.turn*0.22*Math.min(1,Math.abs(s.speed)/5)-next.bank)*(1-Math.exp(-5*dt));
   if(s.grounded&&support>=0){
     // SI force integration; wheel motor governor and rolling resistance are explicit assumptions.
-    const target=input.thrust>0?8*input.thrust:3*input.thrust;
-    const rolling=Math.sign(s.speed||input.thrust)*0.02*support;
-    const motor=input.thrust!==0?clamp(mass*clamp((target-s.speed)*4,-8,8)+rolling,-3000,3000):0;
-    let speed=s.speed+(motor-rolling)/mass*dt;
-    if(input.thrust===0&&Math.sign(speed)!==Math.sign(s.speed))speed=0;
+    const speed=driveSpeed(s.speed,input.thrust,mass,support,dt,stage);
     const distance=speed*dt,angle=distance/CONTACT_RADIUS,c=Math.cos(angle),sn=Math.sin(angle);
     const normal=unit(add(scale(n,c),scale(f,sn)));
     f=unit(add(scale(f,c),scale(n,-sn)));
@@ -70,7 +68,7 @@ function integrate(s:FlightState,input:FlightInput,dt:number,multiplier=10):Flig
   return {...next,fx:f.x,fy:f.y,fz:f.z,velocityX:velocity.x,velocityY:velocity.y,velocityZ:velocity.z};
 }
 
-export function stepFlight(previous:FlightState,input:FlightInput,dt:number,multiplier=10):FlightState{
+export function stepFlight(previous:FlightState,input:FlightInput,dt:number,multiplier=10,stage=0):FlightState{
   if(Object.values(previous).some(v=>typeof v==='number'&&!Number.isFinite(v)))return createState();
   if(!Number.isFinite(dt)||dt<=0)return {...previous};
   const r=Math.hypot(previous.x,previous.y,previous.z);
@@ -81,6 +79,6 @@ export function stepFlight(previous:FlightState,input:FlightInput,dt:number,mult
   const controls={thrust:safe(input.thrust),turn:safe(input.turn),lift:safe(input.lift)};
   const duration=Math.min(dt,1/30),steps=Math.ceil(duration/(1/600)),h=duration/steps;
   let state={...previous,fuel:FUEL_CAPACITY};
-  for(let i=0;i<steps;i++)state=integrate(state,controls,h,multiplier);
+  for(let i=0;i<steps;i++)state=integrate(state,controls,h,multiplier,stage);
   return state;
 }

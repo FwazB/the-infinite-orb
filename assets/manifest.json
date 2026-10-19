@@ -21,7 +21,7 @@
       "source": "independently authored here; no imported geometry or textures",
       "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
       "releaseStatus": "review-required",
-      "sha256": "bea1776d027c24c8d82acc28c63dcade340592c659a78a6f564b4839ea4ec047"
+      "sha256": "0fcc67554952cd053ca6fa2db0e2ac2a066c65b2fcb411910ddbd8299b602def"
     },
     {
       "id": "tiny-planet-world",
@@ -41,7 +41,7 @@
       "source": "independently authored here; no imported audio, geometry or textures",
       "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
       "releaseStatus": "review-required",
-      "sha256": "441ba87b727fe405b0e69800a99c57dafa0730538a5cc37a2f2ef242f8fc8008"
+      "sha256": "d8bdd6ed22b653e0aec081edcb395741684050a8b359b97d794424495e3a05d6"
     },
     {
       "id": "thruster-audio",
@@ -62,6 +62,16 @@
       "releaseStatus": "review-required",
       "rightsBasis": "Local multi-world candidate; no new publication approval, franchise permission or final design approval asserted.",
       "sha256": "2c1dff39b9cc5d09666f3a73d90dc31041a7ed26434bad23141deff30988ad6a"
+    },
+    {
+      "id": "powertrain-aura",
+      "kind": "procedural-generator",
+      "path": "src/stage-aura.ts",
+      "creator": "project-local procedural implementation",
+      "source": "Independently authored primitive shell and rings; no imported assets",
+      "rightsBasis": "Local prototype; no franchise permission or final vehicle approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "03a622eccaf8d38cad398ba37af2d6ee0e913c462a9adabe5f4fe88d50b2013e"
     }
   ],
   "finalVehicleDesignApproved": false

@@ -22,7 +22,8 @@ export function stepBallistic(p:Vector,v:Vector,external:Vector,dt:number,multip
   return {position,velocity};
 }
 /** Arcade resupply: finite force, constant wet mass, no depletion or pressure fade. */
-export function applyThruster(requestedThrust:number,dt:number){
-  const thrust=Number.isFinite(requestedThrust)&&Number.isFinite(dt)&&dt>0?Math.max(0,Math.min(requestedThrust,MAX_THRUST)):0;
+export function applyThruster(requestedThrust:number,dt:number,outputMultiplier=1){
+  const cap=MAX_THRUST*(Number.isFinite(outputMultiplier)?Math.max(1,Math.min(400,outputMultiplier)):1);
+  const thrust=Number.isFinite(requestedThrust)&&Number.isFinite(dt)&&dt>0?Math.max(0,Math.min(requestedThrust,cap)):0;
   return {fuel:FUEL_CAPACITY,thrust,deltaV:thrust>0?thrust*dt/(DRY_MASS+FUEL_CAPACITY):0};
 }
