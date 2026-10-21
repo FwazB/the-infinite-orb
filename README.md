@@ -41,7 +41,7 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 - Optional synthesized gas hiss and small procedural exhaust puffs. No imported audio.
 - First-person cockpit view: press V or use the View button; the default whole-planet view remains available.
 - Mouse-drag camera orbit, reduced-motion setting and low-resolution graphics option.
-- Touch gameplay on phones and tablets: an on-screen pad (steer, drive/reverse, lift, cut, starter power), drag-to-look and a compact portrait/landscape HUD, all handled in Rust. Readable unsupported-WebGL fallback.
+- Touch gameplay on phones and tablets: a floating left-thumb drive stick, a LIFT button, a contextual ⚡ starter, right-side drag-to-look and a minimal portrait/landscape HUD, all handled in Rust. Readable unsupported-WebGL fallback.
 
 Click **Ride scooter**. **W/S** accelerate/brake/reverse; the drive-velocity readout is positive forward and negative in reverse; **A/D** steer; **E** charges starter power while stopped; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
 

@@ -15,8 +15,9 @@
   <p id="message" class="message" role="status">Preparing the scene…</p>
   <footer><div class="controls"><span><kbd>W S</kbd> drive / reverse</span><span><kbd>A D</kbd> steer</span><span><kbd>SPACE</kbd> gas lift</span><span><kbd>SHIFT</kbd> cut thrust</span><span class="orbit-hint">drag to look</span></div><button id="reset" aria-label="Back to start">↺ <span>Back to start</span></button></footer>
   <aside class="options"><button id="camera" disabled aria-label="Switch to cockpit view" aria-pressed="false">View: Planet <kbd>V</kbd></button><label><input id="sound" type="checkbox"> Thruster sound</label><label><input id="motion" type="checkbox"> Reduced motion</label><label><input id="quality" type="checkbox"> Low graphics</label></aside>
+  <div class="stick" id="stick" aria-hidden="true"><span id="stick-knob"></span><small>DRIVE</small></div>
   <nav class="touchpad" aria-label="Touch controls">
-    <div class="pad-steer"><button type="button" tabindex="-1" data-key="KeyA" aria-label="Steer left">◀</button><button type="button" tabindex="-1" data-key="KeyD" aria-label="Steer right">▶</button></div>
-    <div class="pad-drive"><button type="button" tabindex="-1" class="pad-power" data-key="KeyE" aria-label="Starter power">⚡︎</button><button type="button" tabindex="-1" class="pad-gas" data-key="KeyW" aria-label="Drive">▲</button><button type="button" tabindex="-1" class="pad-lift" data-key="Space" aria-label="Gas lift">LIFT</button><button type="button" tabindex="-1" class="pad-cut" data-key="ShiftLeft" aria-label="Cut thrust">CUT</button><button type="button" tabindex="-1" class="pad-back" data-key="KeyS" aria-label="Brake and reverse">▼</button></div>
+    <button type="button" tabindex="-1" class="pad-power" data-key="KeyE" aria-label="Starter power: hold while stopped">⚡︎<small>POWER</small></button>
+    <button type="button" tabindex="-1" class="pad-lift" data-key="Space" aria-label="Gas lift">LIFT</button>
   </nav>
   <p class="credit">A PLAYABLE SKETCH BY FWAZ <span> / </span> UNOFFICIAL FAN CONCEPT · IDEALIZED PHYSICS</p>

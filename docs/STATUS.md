@@ -68,6 +68,12 @@ Unlimited replenishment is an explicit arcade exception to fuel and energy conse
 
 ## Touch/mobile support — 2026-10-21
 
-Phones and tablets are now playable. Rust detects coarse pointers (or the first touch) and shows an on-screen pad: steer left/right, drive, brake/reverse, gas lift, cut thrust and starter power. Each finger is tracked by pointer id, so drive and steer can be held together; drag on the sky orbits the camera. A compact layout covers portrait and landscape phones and short/narrow desktop windows, with safe-area insets. While riding, only View and Reset sit above the pad; sound, reduced motion and low graphics appear when paused. Gameplay physics are unchanged.
+Phones and tablets are playable. The first real-iPhone screenshot showed the initial pad/HUD was far too noisy, so the riding view was redesigned following Apple's touch-control guidance (few large contextual controls, movement on the left, camera on the right, menus up top, 44 pt targets):
 
-Verified in local Chrome with real CDP touch events at 320x568, 390x844 and 844x390: launch, two-finger drive+steer, lift, sky drag without page scroll/zoom, cockpit, pause, 100g starter by touch, and HUD blocks on-screen without overlap. Screenshots were inspected. Not verified: physical phones, iOS Safari, Android Firefox, real pinch gestures, notch insets on hardware, or sustained mobile frame rate.
+- Riding shows only a speed/height pill, a stage chip with a thin progress bar, a round pause button, a floating drive stick and a LIFT button.
+- The stick appears wherever the left thumb lands (analog throttle and steering with a dead zone, so a resting thumb still allows the starter). Dragging on the right half looks around.
+- The ⚡ starter button appears only while it can be used (Stock stage, no cooldown) and fills as it charges.
+- A one-time hint card shows for the first six seconds of a ride, then fades.
+- Destination, camera view, reset and settings live on the pause screen, behind a readable card.
+
+All input handling is Rust; physics are unchanged. Verified in local Chrome with real CDP touch events at 320x568, 390x844 and 844x390: stick drive+steer with simultaneous LIFT, look-drag without page scroll/zoom, pause screen controls, cockpit, and the 100g starter (including with a resting thumb on the stick). The riding HUD is asserted to contain only the five intended elements, on-screen, non-overlapping, with 44 px pause/LIFT targets. Screenshots were inspected. Not verified: physical phones beyond one iPhone screenshot of the previous design, iOS Safari behaviour of the new controls, Android, or sustained mobile frame rate.

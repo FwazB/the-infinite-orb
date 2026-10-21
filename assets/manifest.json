@@ -91,7 +91,7 @@
       "source": "Rust-generated local noise audio; no imported recordings",
       "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
       "releaseStatus": "review-required",
-      "sha256": "fbc80c3017b80ee73be4032f4b1566dda4b225bf9245086a48f9e8c999ae7181"
+      "sha256": "3920a499257740d9279a3aa251946be7da82113b6f403887b19feef34b84963f"
     },
     {
       "id": "rust-asset-converter",

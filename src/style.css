@@ -23,81 +23,110 @@ body[data-mode=unsupported] .powertrain-panel,body[data-mode=error] .powertrain-
 .scene-note small{display:inline-block;max-width:310px;line-height:1.5}
 @media(max-width:1000px){header{gap:12px}.world-picker select{max-width:185px;font-size:11px;padding-right:20px}.world-picker b{padding:7px;margin-left:0}.wordmark{font-size:13px;letter-spacing:.08em}.scene-note{max-width:270px}}
 @media(max-width:699px){.world-picker{display:none}}
-/* Touch pad and compact layout (phones, tablets, short or narrow windows).
-   Rust sets body[data-layout] and body[data-input]; nothing here moves gameplay. */
+/* Compact/touch layout. Rust sets body[data-layout|data-input|data-coach|data-starter].
+   Riding on a phone shows only: speed/height, stage chip, pause, the floating
+   drive stick (left half) and LIFT (right thumb). Everything else lives in the
+   pause screen. Follows Apple's touch-control guidance: few, large, contextual
+   controls; movement on the left, camera drag on the right; menus up top. */
 #world{touch-action:none}
-.touchpad{display:none}
+.touchpad,.stick{display:none}
+body[data-input=touch][data-mode=flying] .touchpad,body[data-input=touch][data-mode=flying] .stick{display:block}
+.touchpad{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));display:none;flex-direction:column;align-items:center;gap:14px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 body[data-input=touch][data-mode=flying] .touchpad{display:flex}
-.touchpad{position:absolute;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));justify-content:space-between;align-items:flex-end;pointer-events:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.touchpad>div{pointer-events:auto;display:grid;gap:8px}
-.pad-steer{grid-template-columns:repeat(2,64px);grid-auto-rows:64px}
-.pad-drive{grid-template-columns:repeat(2,60px);grid-template-rows:repeat(3,56px);grid-template-areas:"power gas" "lift gas" "cut back"}
-.pad-power{grid-area:power}.pad-gas{grid-area:gas}.pad-lift{grid-area:lift}.pad-cut{grid-area:cut}.pad-back{grid-area:back}
-.touchpad button{touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;border:1px solid rgba(53,44,67,.28);border-radius:18px;background:rgba(246,240,220,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font:700 20px/1 'Avenir Next',sans-serif;color:var(--ink);padding:0;transition:none}
-.touchpad .pad-lift,.touchpad .pad-cut{font:700 12px/1 monospace;letter-spacing:.08em}
-.touchpad .pad-gas{background:rgba(53,44,67,.82);color:var(--cream);font-size:26px}
-.touchpad button[data-pressed]{background:var(--accent);color:var(--cream);transform:scale(.95)}
+.touchpad button{touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;border-radius:50%;border:1.5px solid rgba(246,240,220,.85);background:rgba(53,44,67,.28);color:var(--cream);padding:0;transition:transform .08s,background .08s;box-shadow:0 2px 10px rgba(53,44,67,.12)}
+.pad-lift{width:84px;height:84px;font:800 13px/1 'Avenir Next',sans-serif;letter-spacing:.12em}
+.pad-power{width:56px;height:56px;font:700 20px/1 'Avenir Next',sans-serif;display:none!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:conic-gradient(rgba(246,240,220,.9) calc(var(--charge,0)*1turn),rgba(53,44,67,.28) 0)!important}
+.pad-power small{font:700 8px/1 monospace;letter-spacing:.1em}
+body[data-starter=ready] .pad-power{display:flex!important}
+.touchpad button[data-pressed]{background:rgba(184,84,50,.85);border-color:#fff;transform:scale(.94);box-shadow:0 0 0 6px rgba(246,240,220,.35)}
+.stick{position:absolute;left:max(96px,calc(env(safe-area-inset-left) + 80px));top:calc(100% - max(110px,calc(env(safe-area-inset-bottom) + 96px)));width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:1.5px dashed rgba(246,240,220,.7);pointer-events:none;opacity:.55;transition:opacity .15s}
+.stick span{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(246,240,220,.6);border:1.5px solid rgba(246,240,220,.9)}
+.stick small{position:absolute;left:0;right:0;top:calc(100% + 6px);text-align:center;font:700 9px/1 monospace;letter-spacing:.14em;color:var(--cream);text-shadow:0 1px 3px rgba(53,44,67,.5)}
+.stick[data-active]{opacity:1;border-style:solid;background:rgba(53,44,67,.12)}
+.stick[data-active] span{background:rgba(246,240,220,.95)}
+.stick[data-active] small{display:none}
 body[data-layout=compact] #app{min-height:0}
-body[data-layout=compact] header{top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));gap:8px;height:40px}
+/* Header: full when not riding, just Pause while riding. */
+body[data-layout=compact] header{top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));gap:8px;height:44px}
 body[data-layout=compact] .wordmark{font-size:11px;letter-spacing:.08em;gap:6px}
 body[data-layout=compact] .emblem{font-size:22px}
 body[data-layout=compact] .world-picker{display:flex;margin-left:auto}
-body[data-layout=compact] .world-picker select{max-width:min(150px,36vw);font-size:11px;padding:8px 18px 8px 10px}
-body[data-layout=compact] .world-picker b{display:none}
-body[data-layout=compact] #pause{display:block;min-height:40px;padding:8px 12px;font-size:12px}
-body[data-layout=compact] #pause kbd,body[data-layout=compact] .scene-note{display:none}
-body[data-layout=compact] .intro{left:max(20px,env(safe-area-inset-left));right:20px;top:76px;bottom:auto;max-width:560px;max-height:calc(100dvh - 140px);overflow-y:auto;padding-right:4px}
+body[data-layout=compact] .world-picker select{max-width:min(170px,42vw);font-size:12px;padding:10px 18px 10px 12px;min-height:44px}
+body[data-layout=compact] .world-picker b,body[data-layout=compact] .scene-note,body[data-layout=compact] #pause kbd{display:none}
+body[data-layout=compact] #pause{display:none}
+body[data-layout=compact][data-mode=flying] .wordmark,body[data-layout=compact][data-mode=flying] .world-picker{display:none}
+body[data-layout=compact][data-mode=flying] #pause{display:block;margin-left:auto;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;font-size:0;background:rgba(246,240,220,.55)}
+body[data-layout=compact][data-mode=flying] #pause::before{content:"❚❚";font-size:13px;letter-spacing:-.1em}
+/* Intro / pause sheet. */
+body[data-layout=compact] .intro{left:max(20px,env(safe-area-inset-left));right:20px;top:84px;bottom:auto;max-width:560px;max-height:calc(100dvh - 160px);overflow-y:auto;padding-right:4px}
 body[data-layout=compact] .intro h1{font-size:clamp(40px,11vw,64px);margin-bottom:16px}
 body[data-layout=compact] .eyebrow{margin-bottom:14px}
-body[data-layout=compact] .description{font-size:14px;line-height:1.6;margin-bottom:20px}
-body[data-layout=compact] .instruments{top:64px;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));bottom:auto;gap:10px;justify-content:space-between;transform:none!important;padding:8px 12px;border-radius:12px;background:rgba(246,240,220,.8);border:1px solid var(--line)}
-body[data-layout=compact] .instruments output{font-size:22px}
-body[data-layout=compact] .instruments p{margin-top:2px;gap:4px}
-body[data-layout=compact] .instruments div>span{font-size:8px;letter-spacing:.08em}
-body[data-layout=compact] .instruments i{height:26px}
-body[data-layout=compact] .instruments div:nth-of-type(3),body[data-layout=compact] .instruments div:nth-of-type(4),body[data-layout=compact] .instruments i:nth-of-type(3),body[data-layout=compact] .instruments i:nth-of-type(4){display:none}
-body[data-layout=compact] .powertrain-panel{top:148px;right:max(14px,env(safe-area-inset-right));width:min(210px,56vw);padding:8px 10px;gap:4px;font-size:10px}
-body[data-layout=compact] .powertrain-panel strong{font-size:12px}
-body[data-layout=compact]:not([data-mode=flying]):not([data-mode=paused]) .powertrain-panel{display:none}
-body[data-layout=compact] .message{left:16px;right:16px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 248px);max-width:none;text-align:center;font-size:10px}
-body[data-layout=compact]:not([data-mode=flying]) .message{display:none}
-body[data-layout=compact]:not([data-input=touch]) .message{bottom:70px}
-body[data-layout=compact] footer,body[data-layout=compact] .options{display:none}
-body[data-layout=compact][data-mode=flying] footer,body[data-layout=compact][data-mode=paused] footer{display:flex;left:max(14px,env(safe-area-inset-left));right:auto;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 200px)}
-body[data-layout=compact] .controls{display:none}
-body[data-layout=compact] #reset{min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(246,240,220,.7);font-size:16px}
-body[data-layout=compact] #reset span{display:none}
-body[data-layout=compact] #reset{font-size:20px;min-width:44px}
-body[data-layout=compact][data-mode=flying] .options,body[data-layout=compact][data-mode=paused] .options{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:6px 10px;right:max(14px,env(safe-area-inset-right));left:76px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 200px);font-size:10px}
-body[data-layout=compact] .options button{padding:8px 10px;font-size:11px;min-height:36px}
-body[data-layout=compact] .options button kbd{display:none}
-body[data-layout=compact] .options label{background:rgba(246,240,220,.7);border:1px solid var(--line);border-radius:14px;padding:4px 8px;min-height:36px}
-body[data-layout=compact]:not([data-input=touch]) footer,body[data-layout=compact]:not([data-input=touch]) .options{bottom:24px!important}
-body[data-layout=compact] .credit{left:20px;right:20px;bottom:max(6px,env(safe-area-inset-bottom));font-size:7px}
-body[data-layout=compact][data-mode=flying] .credit,body[data-layout=compact][data-mode=paused] .credit{display:none}
-body[data-layout=compact][data-mode=paused] .intro{top:76px}
+body[data-layout=compact] .description{font-size:15px;line-height:1.55;margin-bottom:20px}
 body[data-layout=compact][data-mode=paused] .intro h1{font-size:clamp(34px,9vw,52px)}
-/* While riding, only View and Reset sit above the pad; settings appear when paused. */
-body[data-layout=compact][data-mode=flying] .options label{display:none}
-body[data-layout=compact][data-mode=paused] footer,body[data-layout=compact][data-mode=paused] .options{bottom:max(14px,env(safe-area-inset-bottom))}
-body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 200px)}
-.touchpad .pad-power{color:#8a4f00}
-@media(max-width:360px){.pad-steer{grid-template-columns:repeat(2,58px);grid-auto-rows:58px}.pad-drive{grid-template-columns:repeat(2,54px);grid-template-rows:repeat(3,52px)}body[data-layout=compact] .wordmark{font-size:0;gap:0}body[data-layout=compact] .world-picker select{max-width:62vw}}
-/* Landscape phones: HUD on top, controls in the lower corners, centre clear. */
+/* Riding HUD: one translucent pill top-left, stage chip under it. */
+body[data-layout=compact] .instruments{top:max(12px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));right:auto;bottom:auto;height:44px;gap:14px;transform:none!important;padding:0 14px;border-radius:22px;background:rgba(246,240,220,.6);border:0}
+body[data-layout=compact] .instruments output{font-size:20px}
+body[data-layout=compact] .instruments p{margin:0;gap:3px}
+body[data-layout=compact] .instruments div>span,body[data-layout=compact] .instruments i,body[data-layout=compact] .instruments div:nth-of-type(n+3){display:none}
+body[data-layout=compact] .powertrain-panel{top:calc(max(12px,env(safe-area-inset-top)) + 52px);left:max(16px,env(safe-area-inset-left));right:auto;width:150px;padding:6px 12px 8px;gap:4px;border:0;border-radius:14px;background:rgba(246,240,220,.6)}
+body[data-layout=compact] .powertrain-panel strong{font-size:12px}
+body[data-layout=compact] .powertrain-panel progress{height:4px}
+body[data-layout=compact] #stage-hint,body[data-layout=compact] #starter-hint,body[data-layout=compact] #starter-progress{display:none}
+body[data-layout=compact]:not([data-mode=flying]) .powertrain-panel,body[data-layout=compact]:not([data-mode=flying]) .instruments{display:none}
+/* One-time coach line, then gone. */
+body[data-layout=compact] .message{left:24px;right:24px;top:40%;bottom:auto;max-width:none;text-align:center;font:600 13px/1.5 'Avenir Next',sans-serif;color:var(--ink);text-shadow:0 1px 6px rgba(246,240,220,.9);transition:opacity .6s;pointer-events:none}
+body[data-layout=compact]:not([data-mode=flying]) .message,body[data-layout=compact][data-coach=off] .message{opacity:0}
+body[data-layout=compact]:not([data-input=touch]) .message{opacity:1;top:auto;bottom:76px}
+body[data-layout=compact]:not([data-input=touch]):not([data-mode=flying]) .message{opacity:0}
+/* Settings, view and reset only on the pause screen (or keyboard-compact). */
+body[data-layout=compact] footer,body[data-layout=compact] .options,body[data-layout=compact] .controls{display:none}
+body[data-layout=compact][data-mode=paused] footer,body[data-layout=compact][data-input=keyboard][data-mode=flying] footer{display:flex;left:max(16px,env(safe-area-inset-left));right:auto;bottom:max(16px,env(safe-area-inset-bottom))}
+body[data-layout=compact] #reset{min-height:44px;min-width:44px;padding:6px 14px;border:1px solid var(--line);border-radius:22px;background:rgba(246,240,220,.7);font-size:18px}
+body[data-layout=compact] #reset span{font-size:12px}
+body[data-layout=compact][data-mode=paused] .options,body[data-layout=compact][data-input=keyboard][data-mode=flying] .options{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:8px;right:max(16px,env(safe-area-inset-right));left:auto;max-width:calc(100% - 200px);bottom:max(16px,env(safe-area-inset-bottom));font-size:12px}
+body[data-layout=compact] .options button{padding:10px 12px;font-size:12px;min-height:44px}
+body[data-layout=compact] .options button kbd{display:none}
+body[data-layout=compact] .options label{background:rgba(246,240,220,.7);border:1px solid var(--line);border-radius:22px;padding:4px 12px;min-height:44px}
+body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 260px)}
+body[data-layout=compact] .credit{left:20px;right:20px;bottom:max(6px,env(safe-area-inset-bottom));font-size:8px}
+body[data-layout=compact][data-mode=flying] .credit,body[data-layout=compact][data-mode=paused] .credit{display:none}
+@media(max-width:360px){body[data-layout=compact] .wordmark{font-size:0;gap:0}body[data-layout=compact] .world-picker select{max-width:62vw}body[data-layout=compact] .options{max-width:calc(100% - 90px)}body[data-layout=compact] #reset span{display:none}}
+/* Landscape phones. */
 @media(max-height:500px){
- body[data-layout=compact] header{height:34px;top:max(8px,env(safe-area-inset-top))}
- body[data-layout=compact] .intro{top:52px;max-width:min(520px,62vw);max-height:calc(100dvh - 64px)}
+ body[data-layout=compact] .intro{top:64px;max-width:min(520px,62vw);max-height:calc(100dvh - 76px)}
  body[data-layout=compact] .intro h1{font-size:clamp(28px,7vh,40px);margin-bottom:8px}
  body[data-layout=compact] .eyebrow,body[data-layout=compact] .small-print{display:none}
- body[data-layout=compact] .description{font-size:12px;line-height:1.45;margin-bottom:10px}
+ body[data-layout=compact] .description{font-size:13px;line-height:1.45;margin-bottom:10px}
  body[data-layout=compact] .primary{min-height:44px;padding:10px 18px}
- body[data-layout=compact] .instruments{top:50px;right:auto;max-width:46vw;padding:6px 10px}
- body[data-layout=compact] .instruments output{font-size:18px}
- body[data-layout=compact] .powertrain-panel{top:50px;width:min(220px,36vw)}
- body[data-layout=compact] .message{display:none}
- body[data-layout=compact][data-mode=flying] footer,body[data-layout=compact][data-mode=paused] footer{left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom))}
- body[data-layout=compact][data-mode=flying] .options,body[data-layout=compact][data-mode=paused] .options{left:calc(50% - 150px);right:calc(50% - 150px);justify-content:center;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 48px)}
- body[data-layout=compact][data-mode=flying] .options label,body[data-layout=compact][data-mode=paused] .options label{display:none}
- .pad-drive{grid-template-rows:repeat(3,50px)}
- .pad-steer{grid-auto-rows:64px}
+ body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 140px)}
+ body[data-layout=compact][data-mode=paused] .options{max-width:55vw}
+ .stick{top:calc(100% - max(90px,calc(env(safe-area-inset-bottom) + 80px)))}
+ .touchpad{flex-direction:row-reverse;align-items:flex-end}
 }
+/* Readability pass after phone screenshots. */
+.stick{border-color:rgba(53,44,67,.45)}
+.stick span{background:rgba(246,240,220,.75);border-color:rgba(53,44,67,.35)}
+.stick small{color:var(--ink);text-shadow:0 0 6px rgba(246,240,220,.9);opacity:.8}
+.touchpad button{background:rgba(53,44,67,.55)}
+.touchpad{gap:20px}
+body[data-layout=compact][data-mode=flying] #pause::before{content:"";display:inline-block;width:13px;height:15px;box-sizing:border-box;border-left:4px solid var(--ink);border-right:4px solid var(--ink)}
+body[data-layout=compact] .powertrain-panel progress{appearance:none;-webkit-appearance:none;border:0;border-radius:2px;background:rgba(53,44,67,.18);overflow:hidden}
+body[data-layout=compact] .powertrain-panel progress::-webkit-progress-bar{background:rgba(53,44,67,.18)}
+body[data-layout=compact] .powertrain-panel progress::-webkit-progress-value{background:var(--accent)}
+body[data-layout=compact] .powertrain-panel progress::-moz-progress-bar{background:var(--accent)}
+body[data-layout=compact] .instruments small{opacity:.8}
+body[data-layout=compact] .message{top:calc(max(12px,env(safe-area-inset-top)) + 112px);left:50%;right:auto;width:min(300px,calc(100% - 40px));transform:translateX(-50%);padding:10px 14px;border-radius:14px;background:rgba(246,240,220,.9);text-shadow:none;font-size:13px}
+body[data-layout=compact] .small-print{display:none}
+body[data-layout=compact][data-mode=paused] .options{display:grid;grid-template-columns:1fr 1fr;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));max-width:none;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 56px)}
+body[data-layout=compact][data-mode=paused] .options>*{justify-content:center;text-align:center}
+body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 300px)}
+@media(max-height:500px){
+ body[data-layout=compact][data-mode=paused] .options{grid-template-columns:repeat(4,auto);left:auto;bottom:max(16px,env(safe-area-inset-bottom));max-width:calc(100% - 200px)}
+ body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 140px)}
+ body[data-layout=compact] .message{top:auto;bottom:max(16px,env(safe-area-inset-bottom))}
+}
+body[data-layout=compact] .intro{background:rgba(246,240,220,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:22px;padding:18px 18px 16px}
+body[data-layout=compact] .intro h1{letter-spacing:-.03em}
+body[data-layout=compact] .eyebrow{display:none}
+@media(max-width:360px){body[data-layout=compact] .options label,body[data-layout=compact] .options button{font-size:11px;padding-left:8px;padding-right:8px;white-space:nowrap}}
+body[data-input=touch]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}

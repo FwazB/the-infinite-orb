@@ -93,6 +93,9 @@ impl Drop for Sound {
         let _ = self.context.close();
     }
 }
+const STICK_RADIUS: f64 = 48.;
+/// Pointer id, origin and current position of the floating thumbstick.
+type Stick = (i32, (f64, f64), (f64, f64));
 struct App {
     doc: Document,
     canvas: HtmlCanvasElement,
@@ -108,6 +111,9 @@ struct App {
     pointer: (i32, i32),
     touch: bool,
     pad: Vec<(i32, String)>,
+    /// Floating thumbstick: pointer id, origin and current position (CSS px).
+    stick: Option<Stick>,
+    ride_time: f64,
     events: Vec<Closure<dyn FnMut(Event)>>,
 }
 impl App {
@@ -147,11 +153,59 @@ impl App {
     fn release(&mut self) {
         self.keys.clear();
         self.pad.clear();
+        self.stick = None;
+        self.draw_stick();
         if let Ok(list) = self.doc.query_selector_all(".touchpad [data-pressed]") {
             for i in 0..list.length() {
                 if let Some(e) = list.item(i).and_then(|n| n.dyn_into::<Element>().ok()) {
                     let _ = e.remove_attribute("data-pressed");
                 }
+            }
+        }
+    }
+    /// Analog (thrust, turn) from the floating thumbstick, with a dead zone so
+    /// a resting thumb leaves the starter's "no throttle" condition intact.
+    fn stick_input(&self) -> (f64, f64) {
+        let Some((_, o, p)) = self.stick else {
+            return (0., 0.);
+        };
+        let axis = |d: f64| {
+            let v = (d / STICK_RADIUS).clamp(-1., 1.);
+            if v.abs() < 0.15 {
+                0.
+            } else if v.abs() > 0.9 {
+                v.signum()
+            } else {
+                (v - 0.15 * v.signum()) / 0.75
+            }
+        };
+        (axis(o.1 - p.1), axis(p.0 - o.0))
+    }
+    fn draw_stick(&self) {
+        let Some(base) = self.doc.get_element_by_id("stick") else {
+            return;
+        };
+        let base: HtmlElement = base.unchecked_into();
+        let knob: HtmlElement = self.element("stick-knob").unchecked_into();
+        let (bs, ks) = (base.style(), knob.style());
+        match self.stick {
+            Some((_, o, p)) => {
+                let _ = base.set_attribute("data-active", "");
+                let _ = bs.set_property("left", &format!("{:.0}px", o.0));
+                let _ = bs.set_property("top", &format!("{:.0}px", o.1));
+                let (dx, dy) = (p.0 - o.0, p.1 - o.1);
+                let len = dx.hypot(dy).max(1.);
+                let k = len.min(STICK_RADIUS) / len;
+                let _ = ks.set_property(
+                    "transform",
+                    &format!("translate({:.0}px,{:.0}px)", dx * k, dy * k),
+                );
+            }
+            None => {
+                let _ = base.remove_attribute("data-active");
+                let _ = bs.remove_property("left");
+                let _ = bs.remove_property("top");
+                let _ = ks.remove_property("transform");
             }
         }
     }
@@ -201,6 +255,18 @@ impl App {
             )
         };
         self.text("starter-hint", &starter);
+        let ready = p.stage == 0 && p.starter_cooldown <= 0.;
+        let _ = self
+            .doc
+            .body()
+            .unwrap()
+            .set_attribute("data-starter", if ready { "ready" } else { "off" });
+        if let Some(b) = self.doc.query_selector(".pad-power").ok().flatten() {
+            let _ = b
+                .unchecked_into::<HtmlElement>()
+                .style()
+                .set_property("--charge", &format!("{:.3}", p.starter_charge / 2.));
+        }
         self.attr("starter-progress", "value", p.starter_charge / 2.);
         self.element("starter-progress")
             .dyn_into::<HtmlElement>()
@@ -303,9 +369,10 @@ impl App {
         self.disabled("pause", false);
         self.last = window().unwrap().performance().unwrap().now();
         self.focus_canvas();
+        self.ride_time = 0.;
         let text = self.label(
             "Hold W to ride. The road goes all the way around.",
-            "Hold ▲ to ride. Drag the sky to look around.",
+            "Drag on the left to drive and steer. Hold LIFT to rise.",
         );
         self.text("message", text);
     }
@@ -601,8 +668,26 @@ impl App {
                 }
             }
             "pointerdown" => {
-                if self.mode == "flying" && self.drag_id.is_none() {
-                    let e = event.dyn_into::<PointerEvent>().unwrap();
+                let e = event.dyn_into::<PointerEvent>().unwrap();
+                let half = window()
+                    .unwrap()
+                    .inner_width()
+                    .ok()
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(0.)
+                    / 2.;
+                let left = (e.client_x() as f64) < half;
+                if self.mode == "flying"
+                    && e.pointer_type() == "touch"
+                    && left
+                    && self.stick.is_none()
+                {
+                    let at = (e.client_x() as f64, e.client_y() as f64);
+                    self.stick = Some((e.pointer_id(), at, at));
+                    let _ = self.canvas.set_pointer_capture(e.pointer_id());
+                    self.draw_stick();
+                    self.focus_canvas();
+                } else if self.mode == "flying" && self.drag_id.is_none() {
                     self.drag_id = Some(e.pointer_id());
                     self.pointer = (e.client_x(), e.client_y());
                     let _ = self.canvas.set_pointer_capture(e.pointer_id());
@@ -611,6 +696,13 @@ impl App {
             }
             "pointermove" => {
                 let e = event.dyn_into::<PointerEvent>().unwrap();
+                if let Some((id, o, _)) = self.stick
+                    && id == e.pointer_id()
+                {
+                    self.stick = Some((id, o, (e.client_x() as f64, e.client_y() as f64)));
+                    self.draw_stick();
+                    return;
+                }
                 if self.drag_id == Some(e.pointer_id()) && self.mode == "flying" {
                     if let Some(v) = &mut self.view {
                         v.orbit_by(
@@ -622,10 +714,12 @@ impl App {
                 }
             }
             "pointerup" => {
-                if event
-                    .dyn_ref::<PointerEvent>()
-                    .is_none_or(|e| self.drag_id == Some(e.pointer_id()))
-                {
+                let id = event.dyn_ref::<PointerEvent>().map(|e| e.pointer_id());
+                if id.is_none() || self.stick.is_some_and(|s| Some(s.0) == id) {
+                    self.stick = None;
+                    self.draw_stick();
+                }
+                if id.is_none() || self.drag_id == id {
                     self.drag_id = None;
                 }
             }
@@ -664,13 +758,25 @@ impl App {
                 0.
             }
         };
+        let (stick_thrust, stick_turn) = self.stick_input();
         let input = Input {
             power_up: self.held("KeyE"),
-            thrust: held(&["KeyW", "ArrowUp"]) - held(&["KeyS", "ArrowDown"]),
-            turn: held(&["KeyD", "ArrowRight"]) - held(&["KeyA", "ArrowLeft"]),
+            thrust: (held(&["KeyW", "ArrowUp"]) - held(&["KeyS", "ArrowDown"]) + stick_thrust)
+                .clamp(-1., 1.),
+            turn: (held(&["KeyD", "ArrowRight"]) - held(&["KeyA", "ArrowLeft"]) + stick_turn)
+                .clamp(-1., 1.),
             lift: held(&["Space"]) - held(&["ShiftLeft", "ShiftRight"]),
         };
         self.sim.advance(dt, input);
+        if self.mode == "flying" {
+            self.ride_time += dt;
+        }
+        let coach = self.touch && self.mode == "flying" && self.ride_time < 6.;
+        let _ = self
+            .doc
+            .body()
+            .unwrap()
+            .set_attribute("data-coach", if coach { "on" } else { "off" });
         let reduced = self.checked("motion");
         if let Some(view) = &mut self.view {
             view.render(crate::render::RenderFrame {
@@ -707,17 +813,17 @@ impl App {
                     if self.sim.power.stage == 0 {
                         self.label(
                             "100g training · hold E at rest to power up · release W and Space to charge",
-                            "100g training · hold ⚡\u{fe0e} at rest to power up · release ▲ and LIFT to charge",
+                            "100g training · stop, then hold ⚡\u{fe0e} to power up",
                         )
                     } else {
                         "100g training · staged lift active · keep moving to retain output"
                     }
                 } else if self.sim.state.grounded {
-                    self.label("W/S drive · A/D steer · Space lifts", "▲▼ drive · ◀▶ steer · LIFT rises")
+                    self.label("W/S drive · A/D steer · Space lifts", "Left thumb: drive & steer · Hold LIFT to rise · Drag right side to look")
                 } else {
                     self.label(
                         "Release Space to fall · Shift cuts thrust · unlimited fuel",
-                        "Release LIFT to fall · CUT stops thrust · unlimited fuel",
+                        "Release LIFT to fall · unlimited fuel",
                     )
                 },
             );
@@ -778,6 +884,8 @@ pub fn start() -> Result<(), JsValue> {
             .match_media("(pointer: coarse)")?
             .is_some_and(|q| q.matches()),
         pad: vec![],
+        stick: None,
+        ride_time: 0.,
         events: vec![],
     };
     let reduced = win
@@ -856,6 +964,7 @@ pub fn start() -> Result<(), JsValue> {
         ("pointermove", "pointermove"),
         ("pointerup", "pointerup"),
         ("pointercancel", "pointerup"),
+        ("lostpointercapture", "pointerup"),
         ("webglcontextlost", "lost"),
     ] {
         on(&app, canvas.as_ref(), event, kind)?;
