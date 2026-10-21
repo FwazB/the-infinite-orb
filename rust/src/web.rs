@@ -104,8 +104,10 @@ struct App {
     keys: HashSet<String>,
     last: f64,
     disposed: bool,
-    dragging: bool,
+    drag_id: Option<i32>,
     pointer: (i32, i32),
+    touch: bool,
+    pad: Vec<(i32, String)>,
     events: Vec<Closure<dyn FnMut(Event)>>,
 }
 impl App {
@@ -141,6 +143,44 @@ impl App {
         self.mode = value;
         let _ = self.doc.body().unwrap().set_attribute("data-mode", value);
     }
+    /// Drop every held keyboard key and touch-pad press.
+    fn release(&mut self) {
+        self.keys.clear();
+        self.pad.clear();
+        if let Ok(list) = self.doc.query_selector_all(".touchpad [data-pressed]") {
+            for i in 0..list.length() {
+                if let Some(e) = list.item(i).and_then(|n| n.dyn_into::<Element>().ok()) {
+                    let _ = e.remove_attribute("data-pressed");
+                }
+            }
+        }
+    }
+    fn held(&self, code: &str) -> bool {
+        self.keys.contains(code) || self.pad.iter().any(|(_, k)| k == code)
+    }
+    /// Pick the control label shown in hints for the active input method.
+    fn label(&self, keyboard: &'static str, touch: &'static str) -> &'static str {
+        if self.touch { touch } else { keyboard }
+    }
+    fn layout(&self) {
+        let win = window().unwrap();
+        let size = |v: Result<JsValue, JsValue>| v.ok().and_then(|v| v.as_f64()).unwrap_or(0.);
+        let compact =
+            self.touch || size(win.inner_width()) < 700. || size(win.inner_height()) <= 500.;
+        let body = self.doc.body().unwrap();
+        let _ = body.set_attribute("data-layout", if compact { "compact" } else { "wide" });
+        let _ = body.set_attribute("data-input", if self.touch { "touch" } else { "keyboard" });
+    }
+    fn use_touch(&mut self) {
+        if !self.touch {
+            self.touch = true;
+            self.layout();
+            self.text(
+                "support",
+                "Touch or keyboard · gas-assisted scooter · no rider",
+            );
+        }
+    }
     fn focus_canvas(&self) {
         let _ = self.canvas.focus();
     }
@@ -155,7 +195,10 @@ impl App {
         } else if p.starter_charge > 0. {
             format!("Charging · {:.0}%", p.starter_charge / 2. * 100.)
         } else {
-            "Hold E 2s at rest → Stage I".into()
+            format!(
+                "Hold {} 2s at rest → Stage I",
+                self.label("E", "⚡\u{fe0e}")
+            )
         };
         self.text("starter-hint", &starter);
         self.attr("starter-progress", "value", p.starter_charge / 2.);
@@ -167,7 +210,10 @@ impl App {
             self.text(
                 "world-summary",
                 if p.stage == 0 {
-                    "Stock lift cannot overcome 100g · hold E to power up"
+                    self.label(
+                        "Stock lift cannot overcome 100g · hold E to power up",
+                        "Stock lift cannot overcome 100g · hold ⚡\u{fe0e} to power up",
+                    )
                 } else {
                     "Powertrain active · upgraded lift available"
                 },
@@ -226,7 +272,7 @@ impl App {
         if self.mode != "flying" {
             return;
         }
-        self.keys.clear();
+        self.release();
         self.sim.pause();
         if let Some(a) = &mut self.sound {
             a.update(0., false);
@@ -251,19 +297,20 @@ impl App {
         if self.view.is_none() || !["ready", "paused"].contains(&self.mode) {
             return;
         }
-        self.keys.clear();
+        self.release();
         self.sim.resume();
         self.mode("flying");
         self.disabled("pause", false);
         self.last = window().unwrap().performance().unwrap().now();
         self.focus_canvas();
-        self.text(
-            "message",
+        let text = self.label(
             "Hold W to ride. The road goes all the way around.",
+            "Hold ▲ to ride. Drag the sky to look around.",
         );
+        self.text("message", text);
     }
     fn reset(&mut self) {
-        self.keys.clear();
+        self.release();
         self.sim.reset();
         if let Some(a) = &mut self.sound {
             a.update(0., false);
@@ -278,7 +325,7 @@ impl App {
         }
     }
     fn fail(&mut self, text: &str) {
-        self.keys.clear();
+        self.release();
         self.sim.pause();
         if let Some(a) = &mut self.sound {
             a.update(0., false);
@@ -304,8 +351,8 @@ impl App {
         let Some(index) = self.worlds.iter().position(|w| w.id == id) else {
             return;
         };
-        self.keys.clear();
-        self.dragging = false;
+        self.release();
+        self.drag_id = None;
         if let Some(a) = &mut self.sound {
             a.update(0., false);
         }
@@ -339,7 +386,10 @@ impl App {
         self.text(
             "world-summary",
             if world.shape == "plateau" {
-                "Stock lift cannot overcome 100g · hold E to power up"
+                self.label(
+                    "Stock lift cannot overcome 100g · hold E to power up",
+                    "Stock lift cannot overcome 100g · hold ⚡\u{fe0e} to power up",
+                )
             } else {
                 "Spherical miniature · stylized scale"
             },
@@ -385,7 +435,7 @@ impl App {
             v.toggle();
             let cockpit = v.cockpit;
             self.camera_label(cockpit);
-            self.keys.clear();
+            self.release();
             if self.mode == "flying" {
                 self.focus_canvas();
             }
@@ -471,26 +521,58 @@ impl App {
                 }
             }
             "focus" => {
+                let target = event.target().and_then(|t| t.dyn_into::<Element>().ok());
+                let pad = target
+                    .as_ref()
+                    .is_some_and(|t| t.closest(".touchpad").ok().flatten().is_some());
+                if !pad && target.is_none_or(|t| t.id() != "world") {
+                    self.release();
+                }
+            }
+            "resize" => self.layout(),
+            "anypointer" => {
                 if event
-                    .target()
+                    .dyn_ref::<PointerEvent>()
+                    .is_some_and(|e| e.pointer_type() == "touch")
+                {
+                    self.use_touch();
+                }
+            }
+            "pad-down" => {
+                let e = event.dyn_into::<PointerEvent>().unwrap();
+                e.prevent_default();
+                if self.mode != "flying" {
+                    return;
+                }
+                let Some(button) = e
+                    .current_target()
                     .and_then(|t| t.dyn_into::<Element>().ok())
-                    .is_none_or(|t| t.id() != "world")
-                {
-                    self.keys.clear();
+                else {
+                    return;
+                };
+                let Some(code) = button.get_attribute("data-key") else {
+                    return;
+                };
+                let _ = button.set_pointer_capture(e.pointer_id());
+                let _ = button.set_attribute("data-pressed", "");
+                self.pad.retain(|(id, _)| *id != e.pointer_id());
+                self.pad.push((e.pointer_id(), code));
+            }
+            "pad-up" => {
+                let e = event.dyn_into::<PointerEvent>().unwrap();
+                let Some(button) = e
+                    .current_target()
+                    .and_then(|t| t.dyn_into::<Element>().ok())
+                else {
+                    return;
+                };
+                self.pad.retain(|(id, _)| *id != e.pointer_id());
+                let code = button.get_attribute("data-key").unwrap_or_default();
+                if !self.pad.iter().any(|(_, k)| *k == code) {
+                    let _ = button.remove_attribute("data-pressed");
                 }
             }
-            "resize" => {
-                if window()
-                    .unwrap()
-                    .inner_width()
-                    .unwrap()
-                    .as_f64()
-                    .unwrap_or(0.)
-                    < 700.
-                {
-                    self.pause();
-                }
-            }
+            "menu" => event.prevent_default(),
             "quality" => {
                 let low = self.checked("quality");
                 if let Some(v) = &mut self.view {
@@ -519,17 +601,17 @@ impl App {
                 }
             }
             "pointerdown" => {
-                if self.mode == "flying" {
+                if self.mode == "flying" && self.drag_id.is_none() {
                     let e = event.dyn_into::<PointerEvent>().unwrap();
-                    self.dragging = true;
+                    self.drag_id = Some(e.pointer_id());
                     self.pointer = (e.client_x(), e.client_y());
                     let _ = self.canvas.set_pointer_capture(e.pointer_id());
                     self.focus_canvas();
                 }
             }
             "pointermove" => {
-                if self.dragging && self.mode == "flying" {
-                    let e = event.dyn_into::<PointerEvent>().unwrap();
+                let e = event.dyn_into::<PointerEvent>().unwrap();
+                if self.drag_id == Some(e.pointer_id()) && self.mode == "flying" {
                     if let Some(v) = &mut self.view {
                         v.orbit_by(
                             (e.client_x() - self.pointer.0) as f32,
@@ -539,7 +621,14 @@ impl App {
                     self.pointer = (e.client_x(), e.client_y());
                 }
             }
-            "pointerup" => self.dragging = false,
+            "pointerup" => {
+                if event
+                    .dyn_ref::<PointerEvent>()
+                    .is_none_or(|e| self.drag_id == Some(e.pointer_id()))
+                {
+                    self.drag_id = None;
+                }
+            }
             "lost" => {
                 event.prevent_default();
                 self.fail("The graphics context was interrupted. Reload to return safely to the launch pad.");
@@ -569,14 +658,14 @@ impl App {
             return;
         }
         let held = |names: &[&str]| {
-            if names.iter().any(|n| self.keys.contains(*n)) {
+            if names.iter().any(|n| self.held(n)) {
                 1.
             } else {
                 0.
             }
         };
         let input = Input {
-            power_up: self.keys.contains("KeyE"),
+            power_up: self.held("KeyE"),
             thrust: held(&["KeyW", "ArrowUp"]) - held(&["KeyS", "ArrowDown"]),
             turn: held(&["KeyD", "ArrowRight"]) - held(&["KeyA", "ArrowLeft"]),
             lift: held(&["Space"]) - held(&["ShiftLeft", "ShiftRight"]),
@@ -616,14 +705,20 @@ impl App {
                 "message",
                 if self.sim.world == 3 {
                     if self.sim.power.stage == 0 {
-                        "100g training · hold E at rest to power up · release W and Space to charge"
+                        self.label(
+                            "100g training · hold E at rest to power up · release W and Space to charge",
+                            "100g training · hold ⚡\u{fe0e} at rest to power up · release ▲ and LIFT to charge",
+                        )
                     } else {
                         "100g training · staged lift active · keep moving to retain output"
                     }
                 } else if self.sim.state.grounded {
-                    "W/S drive · A/D steer · Space lifts"
+                    self.label("W/S drive · A/D steer · Space lifts", "▲▼ drive · ◀▶ steer · LIFT rises")
                 } else {
-                    "Release Space to fall · Shift cuts thrust · unlimited fuel"
+                    self.label(
+                        "Release Space to fall · Shift cuts thrust · unlimited fuel",
+                        "Release LIFT to fall · CUT stops thrust · unlimited fuel",
+                    )
                 },
             );
         }
@@ -677,8 +772,12 @@ pub fn start() -> Result<(), JsValue> {
         keys: HashSet::new(),
         last: win.performance().unwrap().now(),
         disposed: false,
-        dragging: false,
+        drag_id: None,
         pointer: (0, 0),
+        touch: win
+            .match_media("(pointer: coarse)")?
+            .is_some_and(|q| q.matches()),
+        pad: vec![],
         events: vec![],
     };
     let reduced = win
@@ -687,18 +786,14 @@ pub fn start() -> Result<(), JsValue> {
     app.element("motion")
         .dyn_into::<HtmlInputElement>()?
         .set_checked(reduced);
-    let unsupported = win.inner_width()?.as_f64().unwrap_or(0.) < 700.
-        || win
-            .match_media("(pointer: coarse)")?
-            .is_some_and(|q| q.matches());
-    if unsupported {
-        app.mode("unsupported");
-        app.html("title", "A little sky.<br><em>A bigger screen.</em>");
-        app.text("description","This little planet needs a desktop keyboard and WebGL. Touch controls are not ready yet.");
-        app.text("launch", "Desktop keyboard required");
-        app.disabled("launch", true);
-        app.text("message", "Mobile gameplay is not supported in this build.");
-    } else {
+    app.layout();
+    if app.touch {
+        app.text(
+            "support",
+            "Touch or keyboard · gas-assisted scooter · no rider",
+        );
+    }
+    {
         match Renderer::new(canvas.clone()) {
             Ok(view) => {
                 app.view = Some(view);
@@ -711,7 +806,7 @@ pub fn start() -> Result<(), JsValue> {
             }
             Err(e) => {
                 web_sys::console::warn_1(&e);
-                app.fail("This browser could not start the 3D scene. Enable hardware acceleration or try another desktop browser.");
+                app.fail("This browser could not start the 3D scene. Enable hardware acceleration or try another browser.");
             }
         }
     }
@@ -738,6 +833,20 @@ pub fn start() -> Result<(), JsValue> {
         ("pagehide", "pagehide"),
     ] {
         on(&app, win.as_ref(), event, kind)?;
+    }
+    on(&app, win.as_ref(), "pointerdown", "anypointer")?;
+    let pad = doc.query_selector_all(".touchpad button[data-key]")?;
+    for i in 0..pad.length() {
+        let button: EventTarget = pad.item(i).unwrap().into();
+        for (event, kind) in [
+            ("pointerdown", "pad-down"),
+            ("pointerup", "pad-up"),
+            ("pointercancel", "pad-up"),
+            ("lostpointercapture", "pad-up"),
+            ("contextmenu", "menu"),
+        ] {
+            on(&app, &button, event, kind)?;
+        }
     }
     for (event, kind) in [("visibilitychange", "visibility"), ("focusin", "focus")] {
         on(&app, doc.as_ref(), event, kind)?;

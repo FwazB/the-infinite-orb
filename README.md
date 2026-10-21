@@ -41,13 +41,13 @@ Open `http://127.0.0.1:4173` on this computer. The server binds only to loopback
 - Optional synthesized gas hiss and small procedural exhaust puffs. No imported audio.
 - First-person cockpit view: press V or use the View button; the default whole-planet view remains available.
 - Mouse-drag camera orbit, reduced-motion setting and low-resolution graphics option.
-- Readable small-screen/unsupported-WebGL fallbacks. No touch gameplay.
+- Touch gameplay on phones and tablets: an on-screen pad (steer, drive/reverse, lift, cut, starter power), drag-to-look and a compact portrait/landscape HUD, all handled in Rust. Readable unsupported-WebGL fallback.
 
 Click **Ride scooter**. **W/S** accelerate/brake/reverse; the drive-velocity readout is positive forward and negative in reverse; **A/D** steer; **E** charges starter power while stopped; **Space** activates lift; **Shift** cuts thrust; **V** switches camera; **P/Escape** pause; **R** return to the start. Click Resume ride to continue. Release the controls to coast to a stop. Driving works without taking off. The road is a visual guide, not a rail: the scooter can explore the entire sphere.
 
 ## Not built yet
 
-Blender master/GLB, exact final vehicle design, finished King Kai-inspired landmarks, checkpoint gameplay, scenery collisions, calibrated audio, touch controls and portfolio integration. Trees, clouds and lakes are decorative; driving through scenery is not yet blocked. No finished-game, mobile-support, cross-browser or 60-FPS guarantee is claimed.
+Blender master/GLB, exact final vehicle design, finished King Kai-inspired landmarks, checkpoint gameplay, scenery collisions, calibrated audio and portfolio integration. Trees, clouds and lakes are decorative; driving through scenery is not yet blocked. Touch play is tested in emulated Chrome phone viewports only; no physical-phone, iOS Safari, cross-browser or 60-FPS guarantee is claimed.
 
 ## Verify
 

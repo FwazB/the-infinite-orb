@@ -23,3 +23,81 @@ body[data-mode=unsupported] .powertrain-panel,body[data-mode=error] .powertrain-
 .scene-note small{display:inline-block;max-width:310px;line-height:1.5}
 @media(max-width:1000px){header{gap:12px}.world-picker select{max-width:185px;font-size:11px;padding-right:20px}.world-picker b{padding:7px;margin-left:0}.wordmark{font-size:13px;letter-spacing:.08em}.scene-note{max-width:270px}}
 @media(max-width:699px){.world-picker{display:none}}
+/* Touch pad and compact layout (phones, tablets, short or narrow windows).
+   Rust sets body[data-layout] and body[data-input]; nothing here moves gameplay. */
+#world{touch-action:none}
+.touchpad{display:none}
+body[data-input=touch][data-mode=flying] .touchpad{display:flex}
+.touchpad{position:absolute;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));justify-content:space-between;align-items:flex-end;pointer-events:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.touchpad>div{pointer-events:auto;display:grid;gap:8px}
+.pad-steer{grid-template-columns:repeat(2,64px);grid-auto-rows:64px}
+.pad-drive{grid-template-columns:repeat(2,60px);grid-template-rows:repeat(3,56px);grid-template-areas:"power gas" "lift gas" "cut back"}
+.pad-power{grid-area:power}.pad-gas{grid-area:gas}.pad-lift{grid-area:lift}.pad-cut{grid-area:cut}.pad-back{grid-area:back}
+.touchpad button{touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;border:1px solid rgba(53,44,67,.28);border-radius:18px;background:rgba(246,240,220,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font:700 20px/1 'Avenir Next',sans-serif;color:var(--ink);padding:0;transition:none}
+.touchpad .pad-lift,.touchpad .pad-cut{font:700 12px/1 monospace;letter-spacing:.08em}
+.touchpad .pad-gas{background:rgba(53,44,67,.82);color:var(--cream);font-size:26px}
+.touchpad button[data-pressed]{background:var(--accent);color:var(--cream);transform:scale(.95)}
+body[data-layout=compact] #app{min-height:0}
+body[data-layout=compact] header{top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));gap:8px;height:40px}
+body[data-layout=compact] .wordmark{font-size:11px;letter-spacing:.08em;gap:6px}
+body[data-layout=compact] .emblem{font-size:22px}
+body[data-layout=compact] .world-picker{display:flex;margin-left:auto}
+body[data-layout=compact] .world-picker select{max-width:min(150px,36vw);font-size:11px;padding:8px 18px 8px 10px}
+body[data-layout=compact] .world-picker b{display:none}
+body[data-layout=compact] #pause{display:block;min-height:40px;padding:8px 12px;font-size:12px}
+body[data-layout=compact] #pause kbd,body[data-layout=compact] .scene-note{display:none}
+body[data-layout=compact] .intro{left:max(20px,env(safe-area-inset-left));right:20px;top:76px;bottom:auto;max-width:560px;max-height:calc(100dvh - 140px);overflow-y:auto;padding-right:4px}
+body[data-layout=compact] .intro h1{font-size:clamp(40px,11vw,64px);margin-bottom:16px}
+body[data-layout=compact] .eyebrow{margin-bottom:14px}
+body[data-layout=compact] .description{font-size:14px;line-height:1.6;margin-bottom:20px}
+body[data-layout=compact] .instruments{top:64px;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));bottom:auto;gap:10px;justify-content:space-between;transform:none!important;padding:8px 12px;border-radius:12px;background:rgba(246,240,220,.8);border:1px solid var(--line)}
+body[data-layout=compact] .instruments output{font-size:22px}
+body[data-layout=compact] .instruments p{margin-top:2px;gap:4px}
+body[data-layout=compact] .instruments div>span{font-size:8px;letter-spacing:.08em}
+body[data-layout=compact] .instruments i{height:26px}
+body[data-layout=compact] .instruments div:nth-of-type(3),body[data-layout=compact] .instruments div:nth-of-type(4),body[data-layout=compact] .instruments i:nth-of-type(3),body[data-layout=compact] .instruments i:nth-of-type(4){display:none}
+body[data-layout=compact] .powertrain-panel{top:148px;right:max(14px,env(safe-area-inset-right));width:min(210px,56vw);padding:8px 10px;gap:4px;font-size:10px}
+body[data-layout=compact] .powertrain-panel strong{font-size:12px}
+body[data-layout=compact]:not([data-mode=flying]):not([data-mode=paused]) .powertrain-panel{display:none}
+body[data-layout=compact] .message{left:16px;right:16px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 248px);max-width:none;text-align:center;font-size:10px}
+body[data-layout=compact]:not([data-mode=flying]) .message{display:none}
+body[data-layout=compact]:not([data-input=touch]) .message{bottom:70px}
+body[data-layout=compact] footer,body[data-layout=compact] .options{display:none}
+body[data-layout=compact][data-mode=flying] footer,body[data-layout=compact][data-mode=paused] footer{display:flex;left:max(14px,env(safe-area-inset-left));right:auto;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 200px)}
+body[data-layout=compact] .controls{display:none}
+body[data-layout=compact] #reset{min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(246,240,220,.7);font-size:16px}
+body[data-layout=compact] #reset span{display:none}
+body[data-layout=compact] #reset{font-size:20px;min-width:44px}
+body[data-layout=compact][data-mode=flying] .options,body[data-layout=compact][data-mode=paused] .options{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:6px 10px;right:max(14px,env(safe-area-inset-right));left:76px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 200px);font-size:10px}
+body[data-layout=compact] .options button{padding:8px 10px;font-size:11px;min-height:36px}
+body[data-layout=compact] .options button kbd{display:none}
+body[data-layout=compact] .options label{background:rgba(246,240,220,.7);border:1px solid var(--line);border-radius:14px;padding:4px 8px;min-height:36px}
+body[data-layout=compact]:not([data-input=touch]) footer,body[data-layout=compact]:not([data-input=touch]) .options{bottom:24px!important}
+body[data-layout=compact] .credit{left:20px;right:20px;bottom:max(6px,env(safe-area-inset-bottom));font-size:7px}
+body[data-layout=compact][data-mode=flying] .credit,body[data-layout=compact][data-mode=paused] .credit{display:none}
+body[data-layout=compact][data-mode=paused] .intro{top:76px}
+body[data-layout=compact][data-mode=paused] .intro h1{font-size:clamp(34px,9vw,52px)}
+/* While riding, only View and Reset sit above the pad; settings appear when paused. */
+body[data-layout=compact][data-mode=flying] .options label{display:none}
+body[data-layout=compact][data-mode=paused] footer,body[data-layout=compact][data-mode=paused] .options{bottom:max(14px,env(safe-area-inset-bottom))}
+body[data-layout=compact][data-mode=paused] .intro{max-height:calc(100dvh - 200px)}
+.touchpad .pad-power{color:#8a4f00}
+@media(max-width:360px){.pad-steer{grid-template-columns:repeat(2,58px);grid-auto-rows:58px}.pad-drive{grid-template-columns:repeat(2,54px);grid-template-rows:repeat(3,52px)}body[data-layout=compact] .wordmark{font-size:0;gap:0}body[data-layout=compact] .world-picker select{max-width:62vw}}
+/* Landscape phones: HUD on top, controls in the lower corners, centre clear. */
+@media(max-height:500px){
+ body[data-layout=compact] header{height:34px;top:max(8px,env(safe-area-inset-top))}
+ body[data-layout=compact] .intro{top:52px;max-width:min(520px,62vw);max-height:calc(100dvh - 64px)}
+ body[data-layout=compact] .intro h1{font-size:clamp(28px,7vh,40px);margin-bottom:8px}
+ body[data-layout=compact] .eyebrow,body[data-layout=compact] .small-print{display:none}
+ body[data-layout=compact] .description{font-size:12px;line-height:1.45;margin-bottom:10px}
+ body[data-layout=compact] .primary{min-height:44px;padding:10px 18px}
+ body[data-layout=compact] .instruments{top:50px;right:auto;max-width:46vw;padding:6px 10px}
+ body[data-layout=compact] .instruments output{font-size:18px}
+ body[data-layout=compact] .powertrain-panel{top:50px;width:min(220px,36vw)}
+ body[data-layout=compact] .message{display:none}
+ body[data-layout=compact][data-mode=flying] footer,body[data-layout=compact][data-mode=paused] footer{left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom))}
+ body[data-layout=compact][data-mode=flying] .options,body[data-layout=compact][data-mode=paused] .options{left:calc(50% - 150px);right:calc(50% - 150px);justify-content:center;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 48px)}
+ body[data-layout=compact][data-mode=flying] .options label,body[data-layout=compact][data-mode=paused] .options label{display:none}
+ .pad-drive{grid-template-rows:repeat(3,50px)}
+ .pad-steer{grid-auto-rows:64px}
+}

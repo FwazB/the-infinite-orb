@@ -8,6 +8,6 @@ init({module_or_path:wasmUrl}).catch(error=>{
  const root=document.getElementById('app');
  root.replaceChildren();
  const message=document.createElement('p');
- message.textContent='The Infinite Orb could not load. Please reload in a desktop browser with WebAssembly and WebGL2 enabled.';
+ message.textContent='The Infinite Orb could not load. Please reload in a browser with WebAssembly and WebGL2 enabled.';
  root.append(message);
 });

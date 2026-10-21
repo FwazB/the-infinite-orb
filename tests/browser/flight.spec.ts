@@ -23,13 +23,16 @@ test('preview, takeoff, steering, pause, blur and reset work with actual keyboar
   expect(failures).toEqual([]);
 });
 
-test('small screens receive an honest keyboard-only fallback without overflow',async({page})=>{
+test('small keyboard windows get the compact playable layout without overflow',async({page})=>{
   await page.setViewportSize({width:390,height:844});
-  await page.goto('/');await expect(page.locator('body')).toHaveAttribute('data-mode','unsupported');
-  await expect(page.getByRole('button',{name:'Ride scooter'})).toBeDisabled();
-  await expect(page.locator('#description')).toContainText('Touch controls are not ready');
+  await page.goto('/');await expect(page.locator('body')).toHaveAttribute('data-mode','ready');
+  await expect(page.locator('body')).toHaveAttribute('data-layout','compact');
+  await expect(page.getByRole('button',{name:'Ride scooter'})).toBeEnabled();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.screenshot({path:'test-results/mobile-fallback.png'});
+  await page.getByRole('button',{name:'Ride scooter'}).click();await page.keyboard.down('w');
+  await expect.poll(async()=>Number(await page.locator('#distance').getAttribute('data-value'))).toBeGreaterThan(1);
+  await page.keyboard.up('w');
+  await page.screenshot({path:'test-results/small-keyboard.png'});
 });
 
 test('unavailable WebGL fails readably; lost context has a working reload path',async({page})=>{
