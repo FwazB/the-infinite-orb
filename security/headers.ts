@@ -5,7 +5,7 @@ const common:Record<string,string>={
   'Permissions-Policy':'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   'Cross-Origin-Resource-Policy':'same-origin'
 };
-const base=["default-src 'none'","script-src 'self'","img-src 'self' data:","font-src 'self'","base-uri 'none'","object-src 'none'","frame-ancestors 'none'","frame-src 'none'","form-action 'none'","worker-src 'none'"];
+const base=["default-src 'none'","script-src 'self' 'wasm-unsafe-eval'","img-src 'self' data:","font-src 'self'","base-uri 'none'","object-src 'none'","frame-ancestors 'none'","frame-src 'none'","form-action 'none'","worker-src 'none'"];
 export const productionHeaders:Record<string,string>={
   ...common,
   'Content-Security-Policy':[...base,"style-src 'self'","connect-src 'self'"].join('; '),

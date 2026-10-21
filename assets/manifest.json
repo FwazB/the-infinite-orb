@@ -72,6 +72,56 @@
       "rightsBasis": "Local prototype; no franchise permission or final vehicle approval asserted.",
       "releaseStatus": "review-required",
       "sha256": "03a622eccaf8d38cad398ba37af2d6ee0e913c462a9adabe5f4fe88d50b2013e"
+    },
+    {
+      "id": "rust-renderer",
+      "kind": "procedural-generator",
+      "path": "rust/src/render.rs",
+      "creator": "project-local procedural implementation",
+      "source": "Rust WebGL2 rendering and effects for the existing independent blockout",
+      "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "ca28f30ddc4f5b78b887458a1d6c0d34ace1a071cbd27b57d15824ed54f05dad"
+    },
+    {
+      "id": "rust-audio",
+      "kind": "procedural-generator",
+      "path": "rust/src/web.rs",
+      "creator": "project-local procedural implementation",
+      "source": "Rust-generated local noise audio; no imported recordings",
+      "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "3892997534ea3453e2f97ed55f631f7f25d24b280f77642d5aaafeee4590e5ac"
+    },
+    {
+      "id": "rust-asset-converter",
+      "kind": "asset-converter",
+      "path": "scripts/export-rust-assets.ts",
+      "creator": "project-local procedural implementation",
+      "source": "Offline conversion of the registered project-local TypeScript geometry",
+      "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "90cd9f5e5066c8b747e0e4fbc36274317d42adaa65a466afd7a9d24dba153b1e"
+    },
+    {
+      "id": "rust-scene",
+      "kind": "generated-geometry",
+      "path": "rust/generated/scene.bin",
+      "creator": "project-local procedural implementation",
+      "source": "Deduplicated geometry and instances produced by scripts/export-rust-assets.ts; no imported artwork",
+      "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "949a7d7a38e251e89a30d2f124f2e565fba9cfcdd1f35a725c5c69f02e962941"
+    },
+    {
+      "id": "rust-world-catalog",
+      "kind": "world-catalog",
+      "path": "rust/generated/worlds.json",
+      "creator": "project-local procedural implementation",
+      "source": "Metadata exported from the existing project-local world catalog",
+      "rightsBasis": "Local Rust migration; no new publication approval, franchise permission or final design approval asserted.",
+      "releaseStatus": "review-required",
+      "sha256": "6c7b894c56a1e2384119b43b297bb99ec83d4170305d6e56808e7209e7757ac8"
     }
   ],
   "finalVehicleDesignApproved": false

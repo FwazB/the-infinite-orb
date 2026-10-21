@@ -1,18 +1,32 @@
 {
-  "name": "the-infinite-orb", "version": "0.1.0", "private": true, "type": "module",
-  "engines": {"node": ">=22.12.0"},
+  "name": "the-infinite-orb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 4173 --strictPort",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "npm run test:reference && npm run test:rust",
+    "test:reference": "tsx --test tests/*.test.ts",
     "test:browser": "playwright test",
     "test:browser:production": "npm run build && playwright test --config=playwright.production.config.ts",
     "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && vite build"
+    "build": "npm run typecheck && npm run build:wasm && vite build",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "test:rust": "cargo test --manifest-path rust/Cargo.toml",
+    "assets:rust": "tsx scripts/export-rust-assets.ts",
+    "predev": "npm run build:wasm"
   },
-  "dependencies": {"three": "0.186.1"},
   "devDependencies": {
-    "@playwright/test": "1.64.1", "@types/three": "0.186.0", "@types/node": "26.6.5",
-    "tsx": "4.23.15", "typescript": "7.0.2", "vite": "8.3.4"
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.5",
+    "@types/three": "0.186.0",
+    "three": "0.186.1",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.4"
   }
 }

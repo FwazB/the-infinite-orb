@@ -32,3 +32,5 @@ id_dsa
 *.[cC][rR][tT]
 *.[cC][eE][rR]
 *.log
+rust/target/
+rust/pkg/

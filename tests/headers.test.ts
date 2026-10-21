@@ -10,6 +10,7 @@ test('production headers restrict executable sources, embedding and browser perm
   assert.match(productionHeaders['Permissions-Policy'],/camera=\(\)/);
   const csp=productionHeaders['Content-Security-Policy'];
   for(const clause of ["default-src 'none'","script-src 'self'","object-src 'none'","base-uri 'none'","frame-ancestors 'none'","form-action 'none'"])assert.ok(csp.includes(clause),clause);
-  assert.ok(!csp.includes('unsafe-inline')&&!csp.includes('unsafe-eval'));
-  assert.ok(!developmentHeaders['Content-Security-Policy'].includes('unsafe-eval'));
+  assert.ok(!csp.includes("'unsafe-inline'")&&!csp.includes("'unsafe-eval'"));
+  assert.ok(csp.includes("'wasm-unsafe-eval'"), 'permit WASM compilation, not JavaScript eval');
+  assert.ok(!developmentHeaders['Content-Security-Policy'].includes("'unsafe-eval'"));
 });

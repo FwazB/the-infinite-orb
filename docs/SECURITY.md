@@ -14,7 +14,7 @@ This is a static, local-first browser prototype: no account system, backend, ana
 
 ## Browser and hosting policy
 
-`security/headers.ts` defines the development and production policies. The production policy restricts scripts/styles/assets/connections to approved local sources, prohibits inline scripts and eval, denies framing/forms/objects/workers, disables selected device permissions, suppresses referrers and enables MIME-sniffing protection. HTTPS responses carry one-year HSTS without a subdomain-wide or preload directive. Development alone allows Vite's injected styles and loopback hot-reload WebSockets.
+`security/headers.ts` defines the development and production policies. The production policy restricts scripts/styles/assets/connections to approved local sources, prohibits inline scripts and JavaScript eval, permits only WebAssembly compilation through `wasm-unsafe-eval`, denies framing/forms/objects/workers, disables selected device permissions, suppresses referrers and enables MIME-sniffing protection. HTTPS responses carry one-year HSTS without a subdomain-wide or preload directive. Development alone allows Vite's injected styles and loopback hot-reload WebSockets.
 
 - `vercel.json` supplies the same production headers and limits the hosting output directory to `dist` for a future Vercel deployment.
 - `public/_headers` is copied into `dist` for static hosts that explicitly support that convention. Other servers may ignore it.

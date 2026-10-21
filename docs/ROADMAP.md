@@ -1,5 +1,9 @@
 # Roadmap and decision gates
 
+## Rust migration — local only
+
+The whole browser game runtime is ported to Rust/WASM with direct WebGL2 and the same four-world gameplay. See [Rust design](RUST_PORT.md) and [verification status](STATUS.md). This changes implementation language, not the unfinished gameplay/art milestones below. This migration has not been pushed or deployed; earlier release authorizations are historical, not new publication permission.
+
 ## Current direction update — King Kai at 10g
 
 Fwaz requested the whole planet in view, scooter driving around it and more cartoon-like graphics. The local revision implements a literal spherical surface, seam-free driving, a whole-globe camera and a procedural cartoon scene. This supersedes M1's flat ground and close chase view below. The gravity revision adds unlimited-fuel lift, procedural audio and a first-person cockpit toggle. Prototype hosting is explicitly authorized. Final vehicle modeling, canonical landmarks, collisions, route gameplay and performance benchmarks remain unfinished. See [current status](STATUS.md) and [playable decisions](PLAYABLE_DESIGN.md).

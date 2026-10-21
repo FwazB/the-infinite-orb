@@ -15,7 +15,7 @@ class PlanCheckTest(unittest.TestCase):
     def test_prototype_hosting_requires_explicit_scope_and_asset_review(self):
         with tempfile.TemporaryDirectory(dir=os.environ.get('TMPDIR')) as temp:
             clone = Path(temp) / 'plan'
-            shutil.copytree(ROOT, clone, ignore=shutil.ignore_patterns('.git', '__pycache__', 'node_modules', 'dist', 'test-results', 'private'))
+            shutil.copytree(ROOT, clone, ignore=shutil.ignore_patterns('.git', '__pycache__', 'node_modules', 'dist', 'test-results', 'private', 'target', 'pkg'))
             manifest = clone / 'assets/manifest.json'
             data = json.loads(manifest.read_text())
             data.update(projectState='public-prototype', publicReleaseApproved=True, approvalScope='prototype-hosting')
@@ -40,7 +40,7 @@ class PlanCheckTest(unittest.TestCase):
     def test_accepts_plan_and_rejects_broken_document_or_manifest(self):
         with tempfile.TemporaryDirectory(dir=os.environ.get('TMPDIR')) as temp:
             clone = Path(temp) / 'plan'
-            shutil.copytree(ROOT, clone, ignore=shutil.ignore_patterns('.git', '__pycache__', 'node_modules', 'dist', 'test-results', 'private'))
+            shutil.copytree(ROOT, clone, ignore=shutil.ignore_patterns('.git', '__pycache__', 'node_modules', 'dist', 'test-results', 'private', 'target', 'pkg'))
 
             def run():
                 return subprocess.run([sys.executable, str(clone / 'scripts/check_plan.py')],

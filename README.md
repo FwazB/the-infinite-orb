@@ -6,13 +6,19 @@ The multi-world release includes fictional 100g Whis training, with its underpow
 
 Working title. Unofficial Dragon Ball-inspired fan concept, not a licensed release. The current geometry is an independently authored, disposable procedural blockout; it is not Fwaz's finished Blender model.
 
+## Rust browser runtime — local migration
+
+The game loop, physics, controls, cameras, direct WebGL2 renderer, stages/effects, UI behavior and synthesized audio now execute in Rust compiled to WebAssembly. `src/boot.js` only loads the generated browser bindings and stylesheet. Three.js is a development-only asset-conversion dependency; it is not loaded by the game. The original TypeScript files remain a frozen parity oracle and procedural geometry source, not a parallel runtime. See [Rust architecture and build](docs/RUST_PORT.md).
+
+This branch is local and unpublished. The public game below remains the preceding TypeScript release until a separately authorized deployment.
+
 ## Play
 
 https://the-infinite-orb.vercel.app — desktop keyboard and WebGL required. Press **V** for cockpit view, or use the **View** button.
 
 ## Run locally
 
-Node >=22.12.0. Install the pinned dependencies with `npm ci --ignore-scripts`.
+Node >=22.12.0, Rust 1.96 (tested), the `wasm32-unknown-unknown` target, and wasm-pack 0.14 (tested). Install the pinned JavaScript tooling with `npm ci --ignore-scripts`; if needed, add the Rust target with `rustup target add wasm32-unknown-unknown`. `npm run dev` builds the Rust game before starting Vite.
 
 ```sh
 npm run dev

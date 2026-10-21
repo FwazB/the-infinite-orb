@@ -1,6 +1,10 @@
 # Technical design
 
-## Current tiny-planet implementation
+## Current Rust/WASM runtime
+
+All runtime game behavior now lives in `rust/src/`: renderer-independent fixed-step physics, direct WebGL2 rendering/cameras/effects, browser input/state/UI and Web Audio. `src/boot.js` is only a WASM/CSS loader. See [Rust architecture](RUST_PORT.md). The unchanged TypeScript sources serve as a migration oracle and offline original-geometry authoring input; they are not bundled into the playable browser runtime. No backend or native desktop wrapper was introduced.
+
+## Historical TypeScript tiny-planet implementation
 
 The local revision uses a literal sphere rather than the original flat field. `src/flight.ts` maintains radial position, a transported forward tangent and radial hover height; `src/planet-world.ts` generates the toon globe and decorative scenery. `src/view.ts` frames the entire planet with an orthographic camera oriented by the scooter’s local surface frame. The proposed terrain-heightfield, obstacle collision and close-chase ideas below are future/historical alternatives, not current behavior. See [playable decisions](PLAYABLE_DESIGN.md).
 

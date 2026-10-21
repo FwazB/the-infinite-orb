@@ -1,3 +1,19 @@
+# Rust/WASM migration — 2026-10-19, local only
+
+The full browser runtime is now Rust: simulation, input/state/UI, direct WebGL2 rendering, both cameras, stages/aura/clouds and opt-in synthesized audio. All four existing destinations and their gravity disclosures remain. The generated JS provides browser bindings/loading only. Original TypeScript remains unchanged as a parity reference and offline geometry source, not a shipped game runtime. See [Rust architecture](RUST_PORT.md).
+
+Verified on the local Chrome setup:
+- 16 native Rust tests passed, including 12 recorded parity traces across four worlds and 30/60/144 Hz, plus force/gravity, timing, invalid-input, circuit, respawn and sustained-lift regressions.
+- 44 existing reference/asset/security Node tests passed. `npm test` now runs both these and the Rust tests.
+- All 26 development and all 26 built-production browser scenarios passed. These exercise real keyboard controls, four worlds, cockpit, starter, stages, lift, reverse, audio, pause/reset, layout, private-path restrictions and CSP inline-script denial.
+- Eight actual 1920×1080 overview/cockpit captures were inspected across the four worlds. This is visual inspection, not pixel-equivalence certification.
+- Typecheck, release build, Rust formatting and warning-free native/WASM Clippy passed. Documentation/provenance validation and its two regression tests passed.
+- npm audit and cargo audit reported zero known vulnerabilities in their respective current dependency sets. Redacted source and static-text secret scans found no detected leaks; WASM also passed bounded forbidden-string checks. The binary scan is not an exhaustive secrets audit.
+- Static build: five files, 1,247,437 raw bytes; local per-file gzip-9 total 377,909 bytes (not a measured network transfer). This is larger than the preceding JavaScript build, not a size or performance improvement claim.
+- Task-owned development/preview listeners were closed at completion.
+
+Changes remain uncommitted on `rust-port`; no push or deployment was performed. The public game remains the preceding release. Safari/Firefox, physical phones, real-speaker listening, sustained performance and hands-on handling approval remain unverified. The custom renderer is not claimed pixel-identical to Three.js.
+
 # Signed drive velocity release
 
 The HUD now shows signed forward/reverse drive velocity (+ forward, - reverse, 00 stopped) instead of hiding direction with an absolute speed value. Existing reverse physics and stage thresholds are unchanged. This is not vertical climb/descent velocity. Verified 44 unit/integration tests, six focused development and six production-preview browser scenarios, and typecheck/build. Browser checks cover braking into reverse on King Kai and Beerus, reset, and display fit at 1920x1080, 1280x720 and 800x600. The 1080p Beerus capture was inspected. Production publication is authorized; deployment evidence is recorded outside the public source tree.

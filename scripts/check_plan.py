@@ -57,7 +57,17 @@ try:
             raise ValueError('manifest has duplicate asset identifiers')
         ids.add(item['id'])
         path = (ROOT / item['path']).resolve()
-        if ROOT not in path.parents or not path.is_file() or path.suffix != '.ts' or path.relative_to(ROOT).parts[0] != 'src' or item['kind'] != 'procedural-generator' or item['releaseStatus'] != expected_status:
+        if ROOT not in path.parents or not path.is_file() or item['releaseStatus'] != expected_status:
+            raise ValueError('manifest asset path or review state is invalid')
+        relative = path.relative_to(ROOT)
+        generator = item['kind'] == 'procedural-generator' and (
+            (relative.parts[0] == 'src' and path.suffix == '.ts') or
+            (relative.parts[:2] == ('rust', 'src') and path.suffix == '.rs'))
+        generated = (item['kind'], relative.as_posix()) in {
+            ('asset-converter', 'scripts/export-rust-assets.ts'),
+            ('generated-geometry', 'rust/generated/scene.bin'),
+            ('world-catalog', 'rust/generated/worlds.json')}
+        if not (generator or generated):
             raise ValueError('manifest asset path or review state is invalid')
         if hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
             errors.append('Asset source hash mismatch: ' + item['path'])
